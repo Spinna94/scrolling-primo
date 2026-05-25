@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immobilads — Nuove Costruzioni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans:  'DM Sans', system-ui, sans-serif;
+      --bg:    #F6F3EE;
+      --dark:  #141210;
+      --accent:#C8A97E;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--dark); color: #fff; font-family: var(--sans); font-weight: 300; overflow-x: hidden; }
+
+    /* ===== PRELOADER ===== */
+    #preloader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--dark);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2rem;
+    }
+    .pre-brand {
+      font-family: var(--serif);
+      font-size: 1.3rem; font-weight: 300;
+      letter-spacing: 0.4em; text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+    }
+    .pre-bar-wrap {
+      width: 180px; height: 1px;
+      background: rgba(255,255,255,0.1);
+      position: relative; overflow: hidden;
+    }
+    .pre-bar {
+      position: absolute; top: 0; left: 0; height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.15s linear;
+    }
+    .pre-pct {
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.5rem 2.5rem;
+      pointer-events: none;
+    }
+    nav a { pointer-events: all; }
+    .nav-brand {
+      font-family: var(--serif);
+      font-size: 1rem; font-weight: 300;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+    }
+    .nav-cta {
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 2px;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nav-cta:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ===== SCROLL SECTION ===== */
+    #scroll-section {
+      position: relative;
+      height: 600vh;
+    }
+    .canvas-wrap {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ===== OVERLAYS ===== */
+    .overlays {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      opacity: 0;
+      will-change: opacity;
+    }
+    /* Overlay 1 — wide shot, villa: presentazione */
+    #ov1 {
+      justify-content: flex-end;
+      padding: 0 2.5rem 6rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%);
+    }
+    #ov1 .ov-eyebrow {
+      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+    #ov1 h1 {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 7vw, 7rem);
+      font-weight: 300; line-height: 0.95;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+    #ov1 .ov-sub {
+      font-size: 0.9rem; color: rgba(255,255,255,0.65);
+      letter-spacing: 0.06em; max-width: 400px; line-height: 1.7;
+    }
+
+    /* Overlay 2 — palazzo svelato */
+    #ov2 {
+      justify-content: center; align-items: flex-end;
+      padding: 0 2.5rem;
+    }
+    #ov2 .ov-pill {
+      background: rgba(200,169,126,0.18);
+      border: 1px solid rgba(200,169,126,0.4);
+      color: var(--accent);
+      padding: 0.4rem 1.2rem; border-radius: 999px;
+      font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    #ov2 h2 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 5rem);
+      font-weight: 300; line-height: 1.05;
+      color: #fff; text-align: right;
+      text-shadow: 0 2px 30px rgba(0,0,0,0.5);
+    }
+    #ov2 .ov-desc {
+      font-size: 0.85rem; color: rgba(255,255,255,0.6);
+      text-align: right; max-width: 340px; margin-top: 1rem; line-height: 1.75;
+    }
+    #ov2-inner {
+      display: flex; flex-direction: column; align-items: flex-end;
+      padding-bottom: 6rem;
+    }
+
+    /* Overlay 3 — rooftop aerial */
+    #ov3 {
+      justify-content: flex-start; align-items: flex-start;
+      padding: 8rem 2.5rem 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 50%);
+    }
+    #ov3 .ov-tag {
+      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.75rem;
+    }
+    #ov3 h2 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 5rem);
+      font-weight: 300; line-height: 1.05; color: #fff;
+    }
+    #ov3 .ov-stat-row {
+      display: flex; gap: 3rem; margin-top: 2rem;
+    }
+    #ov3 .ov-stat-val {
+      font-family: var(--serif);
+      font-size: 2.5rem; font-weight: 300; color: #fff; display: block;
+    }
+    #ov3 .ov-stat-lbl {
+      font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* Overlay 4 — wide shot finale, CTA */
+    #ov4 {
+      justify-content: center; align-items: center;
+      background: rgba(0,0,0,0.35);
+      text-align: center;
+      pointer-events: none;
+    }
+    #ov4 > div { pointer-events: all; }
+    #ov4 .ov-eyebrow {
+      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.5rem;
+    }
+    #ov4 h2 {
+      font-family: var(--serif);
+      font-size: clamp(2.5rem, 6vw, 6rem);
+      font-weight: 300; color: #fff; line-height: 1.05;
+      margin-bottom: 2.5rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,0.5);
+      color: #fff;
+      padding: 0.9rem 2.5rem;
+      font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.25s, border-color 0.25s;
+    }
+    .cta-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+    /* ===== SCROLL HINT ===== */
+    .scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      opacity: 1; transition: opacity 0.5s;
+    }
+    .scroll-hint.hidden { opacity: 0; pointer-events: none; }
+    .scroll-hint span {
+      font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    .scroll-hint-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+      animation: drip 1.8s ease-in-out infinite;
+    }
+    @keyframes drip {
+      0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+      40%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      41%  { transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 2px; background: transparent;
+    }
+    #progress-fill {
+      height: 100%; width: 0%;
+      background: var(--accent);
+      transition: width 0.05s linear;
+    }
+
+    /* ===== INFO SECTION (after scroll) ===== */
+    .s-info {
+      background: var(--bg);
+      color: var(--dark);
+      padding: 7rem 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .info-left {}
+    .info-tag {
+      font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.25rem;
+    }
+    .info-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      font-weight: 300; line-height: 1.15; margin-bottom: 1.5rem;
+    }
+    .info-text {
+      font-size: 0.9rem; line-height: 1.85;
+      color: #555; max-width: 400px;
+    }
+    .info-right {}
+    .info-specs { margin-bottom: 3rem; }
+    .info-spec-row {
+      display: flex; justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      font-size: 0.88rem;
+    }
+    .info-spec-row .k { color: #888; font-weight: 300; }
+    .info-spec-row .v { font-weight: 400; }
+    .info-form {}
+    .info-form-title {
+      font-family: var(--serif);
+      font-size: 1.6rem; font-weight: 300; margin-bottom: 1.5rem;
+    }
+    .f-row { margin-bottom: 1.25rem; }
+    .f-row label {
+      display: block; font-size: 0.65rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #999; margin-bottom: 0.4rem;
+    }
+    .f-row input, .f-row textarea {
+      width: 100%; background: transparent;
+      border: none; border-bottom: 1px solid rgba(0,0,0,0.15);
+      padding: 0.5rem 0; font-size: 0.92rem;
+      font-family: var(--sans); font-weight: 300; color: var(--dark);
+      outline: none; transition: border-color 0.25s;
+    }
+    .f-row input:focus, .f-row textarea:focus { border-bottom-color: var(--accent); }
+    .f-row textarea { resize: none; height: 70px; }
+    .f-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .f-submit {
+      margin-top: 1rem;
+      background: var(--dark); color: #fff;
+      border: none; padding: 0.9rem 2.5rem;
+      font-family: var(--sans); font-size: 0.75rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .f-submit:hover { background: #2a2520; }
+    .f-success { display: none; padding: 1.5rem 0; }
+    .f-success.show { display: block; }
+    .f-success p { font-family: var(--serif); font-size: 1.4rem; font-weight: 300; margin-bottom: 0.4rem; }
+    .f-success small { font-size: 0.82rem; color: #888; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--dark); color: rgba(255,255,255,0.3);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2rem 2.5rem; font-size: 0.75rem; letter-spacing: 0.1em;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ===== VERSION SWITCH ===== */
+    .version-switch {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      z-index: 200; display: flex; gap: 0.4rem;
+    }
+    .vs-pill {
+      background: rgba(21,19,16,0.85); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.65);
+      padding: 0.45rem 1.1rem; border-radius: 999px;
+      font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+      text-decoration: none; transition: background 0.2s; display: inline-block;
+    }
+    .vs-pill.active { background: #fff; color: var(--dark); }
+    .vs-pill:not(.active):hover { color: #fff; background: rgba(255,255,255,0.12); }
+
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      #ov1 { padding: 0 1.5rem 5rem; }
+      #ov1 h1 { font-size: 3rem; }
+      #ov2-inner { padding-bottom: 5rem; }
+      #ov3 { padding: 6rem 1.5rem 0; }
+      #ov3 .ov-stat-row { gap: 1.5rem; }
+      .s-info { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+      .f-row-2 { grid-template-columns: 1fr; gap: 0; }
+      footer { flex-direction: column; gap: 0.75rem; text-align: center; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="pre-brand">Immobilads</div>
+  <div class="pre-bar-wrap"><div class="pre-bar" id="preBar"></div></div>
+  <div class="pre-pct" id="prePct">0%</div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"><div id="progress-fill"></div></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">Immobilads</a>
+  <a class="nav-cta" href="#contatto">Richiedi informazioni</a>
+</nav>
+
+<!-- SCROLL SECTION -->
+<div id="scroll-section">
+  <div class="canvas-wrap">
+    <canvas id="frameCanvas"></canvas>
+
+    <!-- OVERLAYS -->
+    <div class="overlays">
+
+      <!-- 1: Presentazione (frame 0-25) -->
+      <div class="overlay" id="ov1">
+        <div class="ov-eyebrow">Nuove Costruzioni · Lido di Borgio</div>
+        <h1>Immobilads</h1>
+        <p class="ov-sub">Residenze di nuova concezione.<br>Architettura, natura e qualità costruttiva in un unico complesso.</p>
+      </div>
+
+      <!-- 2: Palazzo (frame 30-70) -->
+      <div class="overlay" id="ov2">
+        <div id="ov2-inner">
+          <div class="ov-pill">Complesso Residenziale</div>
+          <h2>Architettura<br>contemporanea.</h2>
+          <p class="ov-desc">Ogni piano progettato con logge ampie, materiali di pregio e soluzioni domotiche integrate per il massimo comfort abitativo.</p>
+        </div>
+      </div>
+
+      <!-- 3: Rooftop aerial (frame 65-105) -->
+      <div class="overlay" id="ov3">
+        <div class="ov-tag">Terrazze e Verde</div>
+        <h2>Giardini pensili<br>al piano sommità.</h2>
+        <div class="ov-stat-row">
+          <div>
+            <span class="ov-stat-val">100%</span>
+            <span class="ov-stat-lbl">Logge private</span>
+          </div>
+          <div>
+            <span class="ov-stat-val">A4</span>
+            <span class="ov-stat-lbl">Classe energetica</span>
+          </div>
+          <div>
+            <span class="ov-stat-val">2026</span>
+            <span class="ov-stat-lbl">Consegna prevista</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4: CTA finale (frame 115-139) -->
+      <div class="overlay" id="ov4">
+        <div>
+          <div class="ov-eyebrow">Disponibilità limitata</div>
+          <h2>Scegli la tua<br>residenza.</h2>
+          <a class="cta-btn" href="#contatto">Richiedi informazioni</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SCROLL HINT -->
+    <div class="scroll-hint" id="scrollHint">
+      <span>Scorri</span>
+      <div class="scroll-hint-line"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO + CONTATTO -->
+<section class="s-info" id="contatto">
+  <div class="info-left">
+    <div class="info-tag">Il Progetto</div>
+    <h2 class="info-title">Lido di Borgio<br>Residenze</h2>
+    <p class="info-text">Un complesso residenziale pensato per chi cerca qualità abitativa senza compromessi. Ville e appartamenti immersi nel verde, con finiture di pregio e tecnologie integrate. Consegna prevista 2026.</p>
+  </div>
+  <div class="info-right">
+    <div class="info-specs">
+      <div class="info-spec-row"><span class="k">Tipologie</span><span class="v">Ville · Appartamenti · Attici</span></div>
+      <div class="info-spec-row"><span class="k">Classe energetica</span><span class="v">A4</span></div>
+      <div class="info-spec-row"><span class="k">Consegna</span><span class="v">2026</span></div>
+      <div class="info-spec-row"><span class="k">Disponibilità</span><span class="v">Limitata</span></div>
+    </div>
+    <div class="info-form">
+      <div class="info-form-title">Richiedi informazioni</div>
+      <div id="formInner">
+        <div class="f-row-2">
+          <div class="f-row"><label>Nome</label><input type="text" id="f-nome" placeholder="Mario" /></div>
+          <div class="f-row"><label>Cognome</label><input type="text" placeholder="Rossi" /></div>
+        </div>
+        <div class="f-row"><label>Email</label><input type="email" id="f-email" placeholder="mario@email.it" /></div>
+        <div class="f-row"><label>Messaggio</label><textarea placeholder="Sono interessato a..."></textarea></div>
+        <button class="f-submit" onclick="submitForm()">Invia →</button>
+      </div>
+      <div class="f-success" id="formSuccess">
+        <p>Grazie, ti ricontattiamo presto.</p>
+        <small>Riceverai una risposta entro 24 ore.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 Immobilads · Lido di Borgio</span>
+  <span>Demo — <a href="mailto:info@immobilads.com">info@immobilads.com</a></span>
+</footer>
+
+<!-- VERSION SWITCH -->
+<div class="version-switch">
+  <a href="index.html" class="vs-pill">Vivace</a>
+  <a href="luxury.html" class="vs-pill">Luxury</a>
+  <a href="immobilads.html" class="vs-pill active">Scroll-Video</a>
+</div>
+
+<script>
+const FRAME_COUNT = 139;
+const frames = new Array(FRAME_COUNT);
+let loadedCount = 0;
+let ready = false;
+let currentFrame = 0;
+let rafPending = false;
+
+// ---- CANVAS ----
+const canvas = document.getElementById('frameCanvas');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  if (ready) drawFrame(currentFrame);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function drawFrame(idx) {
+  idx = Math.max(0, Math.min(idx, FRAME_COUNT - 1));
+  const img = frames[idx];
+  if (!img || !img.complete || !img.naturalWidth) return;
+  const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
+  const x = (canvas.width  - img.naturalWidth  * scale) / 2;
+  const y = (canvas.height - img.naturalHeight * scale) / 2;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
+}
+
+// ---- PRELOAD ----
+const preBar = document.getElementById('preBar');
+const prePct = document.getElementById('prePct');
+
+for (let i = 0; i < FRAME_COUNT; i++) {
+  const img = new Image();
+  img.src = `assets/frames/frame_${String(i + 1).padStart(4, '0')}.jpg`;
+  img.onload = img.onerror = () => {
+    loadedCount++;
+    const pct = Math.round(loadedCount / FRAME_COUNT * 100);
+    preBar.style.width = pct + '%';
+    prePct.textContent = pct + '%';
+    if (loadedCount === FRAME_COUNT) onReady();
+  };
+  frames[i] = img;
+}
+
+function onReady() {
+  ready = true;
+  drawFrame(0);
+  const pre = document.getElementById('preloader');
+  pre.style.transition = 'opacity 0.6s';
+  pre.style.opacity = '0';
+  setTimeout(() => pre.style.display = 'none', 650);
+}
+
+// ---- OVERLAYS ----
+const overlayDefs = [
+  { id: 'ov1', start: 0.00, fadeIn: 0.04, peak: 0.12, fadeOut: 0.22 },
+  { id: 'ov2', start: 0.20, fadeIn: 0.24, peak: 0.36, fadeOut: 0.52 },
+  { id: 'ov3', start: 0.48, fadeIn: 0.52, peak: 0.62, fadeOut: 0.76 },
+  { id: 'ov4', start: 0.78, fadeIn: 0.82, peak: 0.90, fadeOut: 1.00 },
+];
+const overlayEls = overlayDefs.map(o => ({ ...o, el: document.getElementById(o.id) }));
+
+function getOpacity(progress, o) {
+  if (progress <= o.start)   return 0;
+  if (progress <= o.fadeIn)  return (progress - o.start) / (o.fadeIn - o.start);
+  if (progress <= o.peak)    return 1;
+  if (progress <= o.fadeOut) return 1 - (progress - o.peak) / (o.fadeOut - o.peak);
+  return 0;
+}
+
+// ---- SCROLL ----
+const scrollSection = document.getElementById('scroll-section');
+const scrollHint    = document.getElementById('scrollHint');
+const progressFill  = document.getElementById('progress-fill');
+
+function onScroll() {
+  const rect   = scrollSection.getBoundingClientRect();
+  const total  = scrollSection.offsetHeight - window.innerHeight;
+  const scrolled = Math.max(0, -rect.top);
+  const progress = Math.min(1, scrolled / total);
+
+  // frame
+  const idx = Math.round(progress * (FRAME_COUNT - 1));
+  if (idx !== currentFrame) {
+    currentFrame = idx;
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(() => { drawFrame(currentFrame); rafPending = false; });
+    }
+  }
+
+  // overlays
+  overlayEls.forEach(o => {
+    o.el.style.opacity = getOpacity(progress, o);
+  });
+
+  // progress bar
+  progressFill.style.width = (progress * 100) + '%';
+
+  // scroll hint
+  if (scrolled > 80) scrollHint.classList.add('hidden');
+  else scrollHint.classList.remove('hidden');
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+
+// ---- FORM ----
+function submitForm() {
+  const nome  = document.getElementById('f-nome').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  if (!nome || !email) { alert('Compila nome ed email.'); return; }
+  document.getElementById('formInner').style.display = 'none';
+  document.getElementById('formSuccess').classList.add('show');
+}
+</script>
+</body>
+</html>
