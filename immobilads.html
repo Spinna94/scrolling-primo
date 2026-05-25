@@ -337,6 +337,48 @@
     .vs-pill.active { background: #fff; color: var(--dark); }
     .vs-pill:not(.active):hover { color: #fff; background: rgba(255,255,255,0.12); }
 
+    /* ===== FLOORS INTERACTIVE OVERLAY ===== */
+    #floorsOverlay {
+      position: absolute; inset: 0; z-index: 10;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.6s;
+    }
+    #floorsOverlay.active { opacity: 1; pointer-events: all; }
+    .floors-header-ov {
+      position: absolute; top: 5rem; left: 50%; transform: translateX(-50%);
+      text-align: center; white-space: nowrap; pointer-events: none;
+    }
+    .fh-ov-tag {
+      font-size: 0.62rem; letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .fh-ov-title {
+      font-family: var(--serif); font-size: 1.5rem; font-weight: 300;
+      color: rgba(255,255,255,0.85); margin-top: 0.3rem;
+    }
+    .floors-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .floor-hit { fill: transparent; transition: fill 0.2s; }
+    .floor-zone { cursor: default; }
+    .floor-zone:hover .floor-hit { fill: rgba(200,169,126,0.15); }
+    .floor-zone.has-plan { cursor: pointer; }
+    .floor-zone.has-plan:hover .floor-hit { fill: rgba(200,169,126,0.30); }
+    .f-sep { stroke: rgba(255,255,255,0.18); stroke-width: 0.7; pointer-events: none; }
+    .f-label { font-family: 'DM Sans',sans-serif; font-size: 11px; font-weight: 300; fill: rgba(255,255,255,0.4); pointer-events: none; transition: fill 0.2s; }
+    .floor-zone:hover .f-label { fill: rgba(255,255,255,0.9); }
+    .f-badge { font-family: 'DM Sans',sans-serif; font-size: 8.5px; fill: rgba(200,169,126,0.6); pointer-events: none; }
+    .floor-zone.has-plan .f-badge { fill: var(--accent); }
+    .f-tick { stroke: rgba(255,255,255,0.12); stroke-width: 0.7; pointer-events: none; }
+    .floor-zone.has-plan .f-tick { stroke: rgba(200,169,126,0.45); }
+    .f-dash { fill: none; stroke: rgba(200,169,126,0.5); stroke-width: 1.2; stroke-dasharray: 5,4; pointer-events: none; }
+    .continue-hint {
+      position: absolute; bottom: 5rem; left: 50%; transform: translateX(-50%);
+      font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); pointer-events: none;
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    }
+    .ch-arrow { animation: ca 1.6s ease-in-out infinite; }
+    @keyframes ca { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+
     @media (max-width: 768px) {
       nav { padding: 1.2rem 1.5rem; }
       #ov1 { padding: 0 1.5rem 5rem; }
@@ -421,6 +463,121 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- FLOORS OVERLAY (visible during scroll freeze on frame 60) -->
+    <div id="floorsOverlay">
+      <div class="floors-header-ov">
+        <div class="fh-ov-tag">Edificio A · Lido di Borgio</div>
+        <div class="fh-ov-title">Seleziona un piano</div>
+      </div>
+
+      <!--
+        viewBox 0 0 1280 720 → matches the frame image (1280×720, cover-fit)
+        Building tower: x≈460..1240, y≈28..668 — 9 piani + rooftop
+        Separator y values: 28 / 95 / 158 / 221 / 284 / 347 / 410 / 473 / 536 / 599 / 668
+      -->
+      <svg class="floors-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+
+        <!-- Separator lines across building width -->
+        <line class="f-sep" x1="460" y1="95"  x2="1240" y2="95"/>
+        <line class="f-sep" x1="460" y1="158" x2="1240" y2="158"/>
+        <line class="f-sep" x1="460" y1="221" x2="1240" y2="221"/>
+        <line class="f-sep" x1="460" y1="284" x2="1240" y2="284"/>
+        <line class="f-sep" x1="460" y1="347" x2="1240" y2="347"/>
+        <line class="f-sep" x1="460" y1="410" x2="1240" y2="410"/>
+        <line class="f-sep" x1="460" y1="473" x2="1240" y2="473"/>
+        <line class="f-sep" x1="460" y1="536" x2="1240" y2="536"/>
+        <line class="f-sep" x1="460" y1="599" x2="1240" y2="599"/>
+
+        <!-- Rooftop -->
+        <g class="floor-zone" id="fz-roof" onclick="floorClick('Rooftop')">
+          <rect class="floor-hit" x="460" y="28" width="780" height="67"/>
+          <line class="f-tick" x1="230" y1="61" x2="460" y2="61"/>
+          <text class="f-label" x="222" y="57" text-anchor="end">Rooftop</text>
+          <text class="f-badge" x="222" y="68" text-anchor="end">Giardino Pensile</text>
+        </g>
+
+        <!-- Piano 9° -->
+        <g class="floor-zone" id="fz-9" onclick="floorClick(9)">
+          <rect class="floor-hit" x="460" y="95" width="780" height="63"/>
+          <line class="f-tick" x1="230" y1="126" x2="460" y2="126"/>
+          <text class="f-label" x="222" y="122" text-anchor="end">Piano 9°</text>
+          <text class="f-badge" x="222" y="133" text-anchor="end">1 unità disponibile</text>
+        </g>
+
+        <!-- Piano 8° -->
+        <g class="floor-zone" id="fz-8" onclick="floorClick(8)">
+          <rect class="floor-hit" x="460" y="158" width="780" height="63"/>
+          <line class="f-tick" x1="230" y1="189" x2="460" y2="189"/>
+          <text class="f-label" x="222" y="185" text-anchor="end">Piano 8°</text>
+          <text class="f-badge" x="222" y="196" text-anchor="end">2 unità disponibili</text>
+        </g>
+
+        <!-- Piano 7° -->
+        <g class="floor-zone" id="fz-7" onclick="floorClick(7)">
+          <rect class="floor-hit" x="460" y="221" width="780" height="63"/>
+          <line class="f-tick" x1="230" y1="252" x2="460" y2="252"/>
+          <text class="f-label" x="222" y="248" text-anchor="end">Piano 7°</text>
+          <text class="f-badge" x="222" y="259" text-anchor="end">2 unità disponibili</text>
+        </g>
+
+        <!-- Piano 6° -->
+        <g class="floor-zone" id="fz-6" onclick="floorClick(6)">
+          <rect class="floor-hit" x="460" y="284" width="780" height="63"/>
+          <line class="f-tick" x1="230" y1="315" x2="460" y2="315"/>
+          <text class="f-label" x="222" y="311" text-anchor="end">Piano 6°</text>
+          <text class="f-badge" x="222" y="322" text-anchor="end">1 unità disponibile</text>
+        </g>
+
+        <!-- Piano 5° -->
+        <g class="floor-zone" id="fz-5" onclick="floorClick(5)">
+          <rect class="floor-hit" x="460" y="347" width="780" height="63"/>
+          <line class="f-tick" x1="230" y1="378" x2="460" y2="378"/>
+          <text class="f-label" x="222" y="374" text-anchor="end">Piano 5°</text>
+          <text class="f-badge" x="222" y="385" text-anchor="end">3 unità disponibili</text>
+        </g>
+
+        <!-- Piano 4° -->
+        <g class="floor-zone" id="fz-4" onclick="floorClick(4)">
+          <rect class="floor-hit" x="460" y="410" width="780" height="63"/>
+          <line class="f-tick" x1="230" y1="441" x2="460" y2="441"/>
+          <text class="f-label" x="222" y="437" text-anchor="end">Piano 4°</text>
+          <text class="f-badge" x="222" y="448" text-anchor="end">2 unità disponibili</text>
+        </g>
+
+        <!-- Piano 3° — PIANTINA DISPONIBILE -->
+        <g class="floor-zone has-plan" id="fz-3" onclick="location.href='piantina.html'">
+          <rect class="floor-hit" x="460" y="473" width="780" height="63"/>
+          <!-- Dashed highlight border -->
+          <rect class="f-dash" x="461" y="474" width="778" height="61"/>
+          <line class="f-tick" x1="200" y1="504" x2="460" y2="504"/>
+          <text class="f-label" x="192" y="499" text-anchor="end">Piano 3°</text>
+          <text class="f-badge" x="192" y="512" text-anchor="end">Piantina disponibile →</text>
+        </g>
+
+        <!-- Piano 2° -->
+        <g class="floor-zone" id="fz-2" onclick="floorClick(2)">
+          <rect class="floor-hit" x="460" y="536" width="780" height="63"/>
+          <line class="f-tick" x1="230" y1="567" x2="460" y2="567"/>
+          <text class="f-label" x="222" y="563" text-anchor="end">Piano 2°</text>
+          <text class="f-badge" x="222" y="574" text-anchor="end">2 unità disponibili</text>
+        </g>
+
+        <!-- Piano 1° / Terra -->
+        <g class="floor-zone" id="fz-1" onclick="floorClick(1)">
+          <rect class="floor-hit" x="460" y="599" width="780" height="69"/>
+          <line class="f-tick" x1="230" y1="633" x2="460" y2="633"/>
+          <text class="f-label" x="222" y="629" text-anchor="end">Piano 1°</text>
+          <text class="f-badge" x="222" y="640" text-anchor="end">1 unità disponibile</text>
+        </g>
+
+      </svg>
+
+      <div class="continue-hint">
+        <span>Scorri per continuare</span>
+        <span class="ch-arrow">↓</span>
+      </div>
     </div>
 
     <!-- SCROLL HINT -->
@@ -535,14 +692,32 @@ function onReady() {
   setTimeout(() => pre.style.display = 'none', 650);
 }
 
+// ---- FREEZE (frame 60 = index 59 held while floors overlay is shown) ----
+const FREEZE_FRAME = 59;
+const FREEZE_START = 0.35;
+const FREEZE_END   = 0.52;
+
+function getFrameIndex(progress) {
+  if (progress < FREEZE_START) {
+    return Math.round(progress / FREEZE_START * FREEZE_FRAME);
+  } else if (progress <= FREEZE_END) {
+    return FREEZE_FRAME;
+  } else {
+    const p = (progress - FREEZE_END) / (1 - FREEZE_END);
+    return FREEZE_FRAME + 1 + Math.round(p * (FRAME_COUNT - 2 - FREEZE_FRAME));
+  }
+}
+
 // ---- OVERLAYS ----
+// Timings adjusted so ov2 ends before freeze and ov3 starts after
 const overlayDefs = [
-  { id: 'ov1', start: 0.00, fadeIn: 0.04, peak: 0.12, fadeOut: 0.22 },
-  { id: 'ov2', start: 0.20, fadeIn: 0.24, peak: 0.36, fadeOut: 0.52 },
-  { id: 'ov3', start: 0.48, fadeIn: 0.52, peak: 0.62, fadeOut: 0.76 },
-  { id: 'ov4', start: 0.78, fadeIn: 0.82, peak: 0.90, fadeOut: 1.00 },
+  { id: 'ov1', start: 0.00, fadeIn: 0.03, peak: 0.12, fadeOut: 0.22 },
+  { id: 'ov2', start: 0.22, fadeIn: 0.25, peak: 0.30, fadeOut: 0.34 },
+  { id: 'ov3', start: 0.54, fadeIn: 0.57, peak: 0.65, fadeOut: 0.77 },
+  { id: 'ov4', start: 0.79, fadeIn: 0.83, peak: 0.91, fadeOut: 1.00 },
 ];
 const overlayEls = overlayDefs.map(o => ({ ...o, el: document.getElementById(o.id) }));
+const floorsOverlay = document.getElementById('floorsOverlay');
 
 function getOpacity(progress, o) {
   if (progress <= o.start)   return 0;
@@ -563,8 +738,8 @@ function onScroll() {
   const scrolled = Math.max(0, -rect.top);
   const progress = Math.min(1, scrolled / total);
 
-  // frame
-  const idx = Math.round(progress * (FRAME_COUNT - 1));
+  // frame (with freeze)
+  const idx = getFrameIndex(progress);
   if (idx !== currentFrame) {
     currentFrame = idx;
     if (!rafPending) {
@@ -578,6 +753,9 @@ function onScroll() {
     o.el.style.opacity = getOpacity(progress, o);
   });
 
+  // floors overlay: active during freeze zone
+  floorsOverlay.classList.toggle('active', progress >= FREEZE_START && progress <= FREEZE_END);
+
   // progress bar
   progressFill.style.width = (progress * 100) + '%';
 
@@ -587,6 +765,17 @@ function onScroll() {
 }
 
 window.addEventListener('scroll', onScroll, { passive: true });
+
+// ---- FLOOR CLICK ----
+function floorClick(floor) {
+  if (floor === 3) { window.location.href = 'piantina.html'; return; }
+  const label = floor === 'Rooftop' ? 'Rooftop · Giardino Pensile' : `Piano ${floor}°`;
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(20,18,16,0.92);color:#fff;padding:0.75rem 1.5rem;border-radius:2px;font-family:\'DM Sans\',sans-serif;font-size:0.75rem;letter-spacing:0.12em;z-index:999;backdrop-filter:blur(10px);border:1px solid rgba(200,169,126,0.2);white-space:nowrap;';
+  t.textContent = `${label} — piantina in elaborazione`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.4s'; setTimeout(()=>t.remove(),400); }, 2200);
+}
 
 // ---- FORM ----
 function submitForm() {
