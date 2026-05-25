@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Residenza Aurora — Torino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    /* ===== VARIABLES & RESET ===== */
+    :root {
+      --bg:       #F6F3EE;
+      --bg-dark:  #151310;
+      --text:     #1A1814;
+      --muted:    #7A7468;
+      --accent:   #9B8A6E;
+      --serif:    'Cormorant Garamond', Georgia, serif;
+      --sans:     'DM Sans', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ===== PRELOADER ===== */
+    #preloader {
+      position: fixed; inset: 0;
+      background: var(--bg-dark);
+      z-index: 9999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2.5rem;
+    }
+    .pre-logo {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      opacity: 0;
+    }
+    .pre-lines {
+      display: flex; gap: 6px; align-items: center;
+    }
+    .pre-line {
+      width: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+      transform-origin: bottom;
+    }
+    .pre-progress {
+      position: absolute;
+      bottom: 3rem; left: 50%; transform: translateX(-50%);
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 3rem;
+      mix-blend-mode: normal;
+      transition: background 0.4s, padding 0.4s;
+    }
+    nav.solid {
+      background: rgba(246,243,238,0.94);
+      backdrop-filter: blur(12px);
+      padding: 1rem 3rem;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .nav-brand {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      color: #fff;
+      transition: color 0.4s;
+    }
+    nav.solid .nav-brand { color: var(--text); }
+    .nav-center {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      transition: color 0.4s;
+    }
+    nav.solid .nav-center { color: var(--muted); }
+    .nav-cta {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+      padding-bottom: 2px;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    nav.solid .nav-cta { color: var(--text); border-color: var(--text); }
+    .nav-cta:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ===== HERO ===== */
+    .s-hero {
+      height: 100vh; min-height: 600px;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: flex-end;
+    }
+    .hero-bg {
+      position: absolute; inset: -15%;
+      background: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=85') center/cover no-repeat;
+      will-change: transform;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(21,19,16,0.78) 0%, rgba(21,19,16,0.15) 55%, transparent 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 0 3rem 5rem;
+      width: 100%;
+      display: flex; flex-direction: column; align-items: flex-start;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+    .hero-eyebrow span { display: block; }
+    .hero-h1 {
+      font-family: var(--serif);
+      font-size: clamp(4rem, 9vw, 9rem);
+      font-weight: 300;
+      line-height: 0.95;
+      color: #fff;
+      margin-bottom: 2.5rem;
+      overflow: hidden;
+    }
+    .hero-h1 .line { display: block; overflow: hidden; }
+    .hero-h1 .line span { display: block; }
+    .hero-meta {
+      display: flex; align-items: center; gap: 2.5rem;
+    }
+    .hero-price {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.05em;
+    }
+    .hero-divider {
+      width: 1px; height: 36px;
+      background: rgba(255,255,255,0.25);
+    }
+    .hero-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; right: 3rem; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    }
+    .hero-scroll-text {
+      font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      writing-mode: vertical-rl;
+    }
+    .hero-scroll-line {
+      width: 1px; height: 60px;
+      background: rgba(255,255,255,0.25);
+      transform-origin: top;
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ===== STATS ===== */
+    .s-stats {
+      background: var(--bg-dark);
+      padding: 4rem 3rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      divide: solid;
+    }
+    .stat-item {
+      padding: 2rem 3rem;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    .stat-item:first-child { border-left: none; }
+    .stat-number {
+      font-family: var(--serif);
+      font-size: clamp(2.8rem, 4vw, 4.5rem);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+    .stat-number .unit {
+      font-size: 0.45em;
+      color: var(--accent);
+      font-family: var(--sans);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ===== FEATURE SECTIONS ===== */
+    .s-feature {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 90vh;
+      overflow: hidden;
+    }
+    .s-feature.reverse { direction: rtl; }
+    .s-feature.reverse > * { direction: ltr; }
+    .feature-image {
+      position: relative;
+      overflow: hidden;
+      min-height: 500px;
+    }
+    .feature-image img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transform: scale(1.08);
+      will-change: transform;
+    }
+    .feature-body {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 5rem 5rem 5rem 4rem;
+    }
+    .s-feature.reverse .feature-body { padding: 5rem 4rem 5rem 5rem; }
+    .feature-index {
+      font-family: var(--serif);
+      font-size: 4rem;
+      color: rgba(0,0,0,0.06);
+      font-weight: 300;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+    .feature-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+    .feature-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    .feature-title span { display: block; }
+    .feature-text {
+      font-size: 0.95rem;
+      line-height: 1.85;
+      color: var(--muted);
+      max-width: 360px;
+      margin-bottom: 2.5rem;
+    }
+    .feature-specs {
+      display: flex; flex-direction: column; gap: 0.6rem;
+    }
+    .spec-line {
+      display: flex; align-items: center; gap: 1rem;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+    .spec-line::before {
+      content: '';
+      display: block;
+      width: 20px; height: 1px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* Clip-path reveal (applied via JS) */
+    .clip-image { clip-path: inset(0 100% 0 0); }
+    .clip-image.revealed { clip-path: inset(0 0% 0 0); }
+    .fade-up { opacity: 0; transform: translateY(30px); }
+    .fade-up.revealed { opacity: 1; transform: translateY(0); }
+
+    /* ===== FULL QUOTE ===== */
+    .s-quote {
+      background: var(--bg-dark);
+      padding: 10rem 3rem;
+      text-align: center;
+    }
+    .quote-text {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4.5vw, 4.2rem);
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.4;
+      max-width: 860px;
+      margin: 0 auto 1.5rem;
+    }
+    .quote-author {
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ===== HORIZONTAL GALLERY ===== */
+    .s-gallery {
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .gallery-intro {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 4rem 3rem 2rem;
+    }
+    .gallery-intro-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      font-weight: 300;
+    }
+    .gallery-intro-note {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-bottom: 0.25rem;
+    }
+    .gallery-track-wrap {
+      overflow: hidden;
+    }
+    .gallery-track {
+      display: flex;
+      gap: 1.2rem;
+      padding: 0 3rem 4rem;
+      width: max-content;
+      align-items: center;
+    }
+    .gallery-track .gimg {
+      flex-shrink: 0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .gallery-track .gimg img {
+      height: 520px;
+      width: auto;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+    .gallery-track .gimg:hover img { transform: scale(1.03); }
+    .gallery-track .gimg.tall img { height: 420px; }
+    .gallery-track .gimg.wide img { height: 380px; width: 640px; }
+
+    /* ===== SPECS ===== */
+    .s-specs {
+      padding: 8rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .specs-left .spec-section-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 3vw, 3rem);
+      font-weight: 300;
+      line-height: 1.2;
+      margin-bottom: 2.5rem;
+    }
+    .specs-left p {
+      font-size: 0.9rem; line-height: 1.8; color: var(--muted);
+    }
+    .specs-right {}
+    .spec-group { margin-bottom: 2.5rem; }
+    .spec-group-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .spec-row-lux {
+      display: flex; justify-content: space-between;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      font-size: 0.88rem;
+    }
+    .spec-row-lux:last-child { border-bottom: none; }
+    .spec-row-lux .k { color: var(--muted); font-weight: 300; }
+    .spec-row-lux .v { font-weight: 400; color: var(--text); }
+
+    /* ===== LOCATION ===== */
+    .s-location {
+      background: var(--bg-dark);
+      padding: 8rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .location-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+    .location-desc {
+      font-size: 0.9rem; line-height: 1.8;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 3rem;
+      max-width: 380px;
+    }
+    .distance-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+    .distance-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .distance-item:first-child { border-top: 1px solid rgba(255,255,255,0.06); }
+    .dist-name {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.75);
+      font-weight: 300;
+    }
+    .dist-time {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: 300;
+    }
+    .dist-bar-wrap {
+      flex: 1; margin: 0 1.5rem; height: 1px;
+      background: rgba(255,255,255,0.08);
+      position: relative; overflow: hidden;
+    }
+    .dist-bar {
+      position: absolute; top: 0; left: 0;
+      height: 100%; background: var(--accent);
+      width: 0%;
+      transition: width 1.2s ease;
+    }
+    .dist-bar.animated { width: var(--w); }
+    .location-map {
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      height: 420px;
+    }
+    .location-map iframe { width: 100%; height: 100%; border: none; display: block; }
+
+    /* ===== CONTACT ===== */
+    .s-contact {
+      padding: 8rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .contact-left {}
+    .contact-tag {
+      font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.25rem;
+    }
+    .contact-title {
+      font-family: var(--serif);
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      font-weight: 300; line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+    .contact-info { display: flex; flex-direction: column; gap: 0.75rem; }
+    .contact-info-line { font-size: 0.88rem; color: var(--muted); }
+    .contact-info-line strong { color: var(--text); font-weight: 400; }
+    .contact-right {}
+    .lux-form .lux-field {
+      margin-bottom: 1.5rem;
+    }
+    .lux-form label {
+      display: block;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .lux-form input,
+    .lux-form select,
+    .lux-form textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(0,0,0,0.15);
+      padding: 0.6rem 0;
+      font-size: 0.95rem;
+      font-family: var(--sans);
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.3s;
+      border-radius: 0;
+      -webkit-appearance: none;
+    }
+    .lux-form input:focus,
+    .lux-form select:focus,
+    .lux-form textarea:focus {
+      border-bottom-color: var(--accent);
+    }
+    .lux-form textarea { resize: none; height: 80px; }
+    .lux-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .lux-btn {
+      display: inline-flex; align-items: center; gap: 1rem;
+      background: var(--bg-dark);
+      color: #fff;
+      padding: 1rem 2.5rem;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border: none; cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.3s;
+    }
+    .lux-btn:hover { background: #2a2520; }
+    .lux-btn-arrow { font-size: 1.1rem; transition: transform 0.3s; }
+    .lux-btn:hover .lux-btn-arrow { transform: translateX(4px); }
+    .lux-success {
+      display: none; padding: 2rem 0;
+    }
+    .lux-success.show { display: block; }
+    .lux-success p {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .lux-success small { font-size: 0.85rem; color: var(--muted); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--bg-dark);
+      padding: 3rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-brand {
+      font-family: var(--serif);
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.5);
+      font-weight: 300;
+    }
+    .footer-note {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* ===== VERSION SWITCH ===== */
+    .version-switch {
+      position: fixed;
+      bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      z-index: 200;
+      display: flex; gap: 0.5rem; align-items: center;
+    }
+    .vs-pill {
+      background: rgba(21,19,16,0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.7);
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .vs-pill.active {
+      background: #fff;
+      color: var(--text);
+      border-color: transparent;
+    }
+    .vs-pill:not(.active):hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 1.5rem; }
+      nav.solid { padding: 0.9rem 1.5rem; }
+      .nav-center { display: none; }
+      .hero-content { padding: 0 1.5rem 4rem; }
+      .hero-scroll { right: 1.5rem; }
+      .s-stats { padding: 3rem 1.5rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0; }
+      .stat-item { border-top: 1px solid rgba(255,255,255,0.08); }
+      .stat-item:first-child, .stat-item:nth-child(2) { border-top: none; }
+      .stat-item:nth-child(2n+1) { border-left: none; }
+      .s-feature, .s-feature.reverse { grid-template-columns: 1fr; direction: ltr; }
+      .feature-image { min-height: 300px; }
+      .feature-body { padding: 3rem 1.5rem; }
+      .s-feature.reverse .feature-body { padding: 3rem 1.5rem; }
+      .gallery-intro { padding: 3rem 1.5rem 1.5rem; }
+      .gallery-track { padding: 0 1.5rem 3rem; gap: 0.8rem; }
+      .gallery-track .gimg img { height: 320px; }
+      .gallery-track .gimg.wide img { height: 260px; width: 380px; }
+      .s-quote { padding: 6rem 1.5rem; }
+      .s-specs { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+      .s-location { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+      .s-contact { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+      .lux-form-row { grid-template-columns: 1fr; gap: 0; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="pre-lines" id="preLines"></div>
+  <div class="pre-logo" id="preLogo">Residenza Aurora</div>
+  <div class="pre-progress" id="preProgress">Torino · Via Mazzini 24</div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-brand" href="#">RA</a>
+  <span class="nav-center">Via Mazzini 24 · Torino</span>
+  <a class="nav-cta" href="#contatto">Prenota visita</a>
+</nav>
+
+<!-- HERO -->
+<section class="s-hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow"><span id="heroEyebrow">Torino Centro · Piano 5° · Esclusiva</span></div>
+    <h1 class="hero-h1">
+      <div class="line"><span id="heroLine1">Residenza</span></div>
+      <div class="line"><span id="heroLine2">Aurora</span></div>
+    </h1>
+    <div class="hero-meta" id="heroMeta">
+      <span class="hero-price">€ 520.000</span>
+      <div class="hero-divider"></div>
+      <span class="hero-tag">120 m² · Ristrutturato 2023</span>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span class="hero-scroll-text">Scopri</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="s-stats">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-number"><span class="counter" data-target="120">0</span><span class="unit">m²</span></div>
+      <div class="stat-label">Superficie utile</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number"><span class="counter" data-target="3">0</span></div>
+      <div class="stat-label">Camere da letto</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number"><span class="counter" data-target="35">0</span><span class="unit">m²</span></div>
+      <div class="stat-label">Terrazzo panoramico</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">5°</div>
+      <div class="stat-label">Piano · Vista sui tetti</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE 1 — SOGGIORNO -->
+<section class="s-feature">
+  <div class="feature-image">
+    <img class="clip-image" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=85" alt="Soggiorno" loading="lazy" />
+  </div>
+  <div class="feature-body">
+    <div class="feature-index fade-up">01</div>
+    <div class="feature-tag fade-up">Il Soggiorno</div>
+    <h2 class="feature-title fade-up"><span>Luce e spazio,</span><span>senza compromessi.</span></h2>
+    <p class="feature-text fade-up">45 m² aperti, soffitti a 3,2 metri, parquet in rovere massello. Il soggiorno di Residenza Aurora è pensato per chi vuole il centro di Torino senza rinunciare al respiro degli spazi.</p>
+    <div class="feature-specs">
+      <div class="spec-line fade-up">Parquet rovere massello</div>
+      <div class="spec-line fade-up">Infissi triplo vetro Schüco</div>
+      <div class="spec-line fade-up">Domotica integrata Bticino</div>
+      <div class="spec-line fade-up">Riscaldamento a pavimento</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE 2 — CUCINA (reverse) -->
+<section class="s-feature reverse">
+  <div class="feature-image">
+    <img class="clip-image" src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=85" alt="Cucina" loading="lazy" />
+  </div>
+  <div class="feature-body">
+    <div class="feature-index fade-up">02</div>
+    <div class="feature-tag fade-up">La Cucina</div>
+    <h2 class="feature-title fade-up"><span>Su misura,</span><span>in ogni dettaglio.</span></h2>
+    <p class="feature-text fade-up">Cucina con isola centrale su progetto, elettrodomestici Miele integrati, piano cottura a induzione. Un ambiente funzionale costruito intorno al piacere di cucinare.</p>
+    <div class="feature-specs">
+      <div class="spec-line fade-up">Isola centrale 240 × 100 cm</div>
+      <div class="spec-line fade-up">Elettrodomestici Miele</div>
+      <div class="spec-line fade-up">Piano cottura a induzione</div>
+      <div class="spec-line fade-up">Cappa aspirante silenziosità A</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE 3 — TERRAZZO -->
+<section class="s-feature">
+  <div class="feature-image">
+    <img class="clip-image" src="https://images.unsplash.com/photo-1600607686527-6fb886090705?w=900&q=85" alt="Terrazzo" loading="lazy" />
+  </div>
+  <div class="feature-body">
+    <div class="feature-index fade-up">03</div>
+    <div class="feature-tag fade-up">Il Terrazzo</div>
+    <h2 class="feature-title fade-up"><span>35 m² di cielo</span><span>sopra Torino.</span></h2>
+    <p class="feature-text fade-up">Un terrazzo panoramico esposto a sud, affacciato sui tetti del centro storico. Pietra di Luserna, irrigazione automatica, cablaggio per audio esterno.</p>
+    <div class="feature-specs">
+      <div class="spec-line fade-up">Pavimentazione pietra di Luserna</div>
+      <div class="spec-line fade-up">Irrigazione automatica</div>
+      <div class="spec-line fade-up">Prese esterne (audio + corrente)</div>
+      <div class="spec-line fade-up">Esposizione sud · vista panoramica</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="s-quote">
+  <p class="quote-text fade-up">"Ogni materiale, ogni proporzione, ogni fonte di luce — scelti perché l'appartamento fosse all'altezza di chi lo abiterà."</p>
+  <div class="quote-author fade-up">Studio Ricotti Architettura · Torino</div>
+</section>
+
+<!-- HORIZONTAL GALLERY -->
+<section class="s-gallery" id="galleria">
+  <div class="gallery-intro">
+    <h2 class="gallery-intro-title fade-up">Galleria</h2>
+    <span class="gallery-intro-note fade-up">Scorri per esplorare →</span>
+  </div>
+  <div class="gallery-track-wrap" id="galleryWrap">
+    <div class="gallery-track" id="galleryTrack">
+      <div class="gimg">
+        <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?w=700&q=85" alt="Living" loading="lazy" />
+      </div>
+      <div class="gimg tall">
+        <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=85" alt="Camera" loading="lazy" />
+      </div>
+      <div class="gimg wide">
+        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=700&q=85" alt="Cucina" loading="lazy" />
+      </div>
+      <div class="gimg">
+        <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=85" alt="Bagno" loading="lazy" />
+      </div>
+      <div class="gimg tall">
+        <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=85" alt="Terrazzo" loading="lazy" />
+      </div>
+      <div class="gimg">
+        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=700&q=85" alt="Dettaglio" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECS -->
+<section class="s-specs">
+  <div class="specs-left">
+    <h2 class="spec-section-title fade-up">Scheda<br>tecnica</h2>
+    <p class="fade-up">Ogni dato verificato, ogni cifra aggiornata. Planimetrie in scala disponibili su richiesta. Visita libera previo appuntamento.</p>
+  </div>
+  <div class="specs-right">
+    <div class="spec-group fade-up">
+      <div class="spec-group-title">Immobile</div>
+      <div class="spec-row-lux"><span class="k">Superficie utile</span><span class="v">120 m²</span></div>
+      <div class="spec-row-lux"><span class="k">Terrazzo</span><span class="v">35 m²</span></div>
+      <div class="spec-row-lux"><span class="k">Cantina</span><span class="v">8 m²</span></div>
+      <div class="spec-row-lux"><span class="k">Piano</span><span class="v">5° su 7</span></div>
+      <div class="spec-row-lux"><span class="k">Anno ristrutturazione</span><span class="v">2023</span></div>
+    </div>
+    <div class="spec-group fade-up">
+      <div class="spec-group-title">Classificazione</div>
+      <div class="spec-row-lux"><span class="k">Classe energetica</span><span class="v">A4</span></div>
+      <div class="spec-row-lux"><span class="k">IPE</span><span class="v">28 kWh/m²·anno</span></div>
+      <div class="spec-row-lux"><span class="k">Riscaldamento</span><span class="v">Autonomo a pavimento</span></div>
+      <div class="spec-row-lux"><span class="k">Esposizione</span><span class="v">Sud / Est</span></div>
+    </div>
+    <div class="spec-group fade-up">
+      <div class="spec-group-title">Acquisto</div>
+      <div class="spec-row-lux"><span class="k">Prezzo</span><span class="v">€ 520.000</span></div>
+      <div class="spec-row-lux"><span class="k">Box auto</span><span class="v">Incluso</span></div>
+      <div class="spec-row-lux"><span class="k">Spese condominiali</span><span class="v">€ 180/mese</span></div>
+      <div class="spec-row-lux"><span class="k">Disponibilità</span><span class="v">Immediata</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section class="s-location">
+  <div>
+    <h2 class="location-title fade-up">Nel cuore<br>di Torino.</h2>
+    <p class="location-desc fade-up">Via Mazzini 24, a pochi passi da Piazza Castello e Piazza San Carlo. Tutto a portata di piedi.</p>
+    <ul class="distance-list">
+      <li class="distance-item fade-up">
+        <span class="dist-name">Supermercato</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="--w: 12%"></div></div>
+        <span class="dist-time">2 min</span>
+      </li>
+      <li class="distance-item fade-up">
+        <span class="dist-name">Metro Porta Nuova</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="--w: 25%"></div></div>
+        <span class="dist-time">4 min</span>
+      </li>
+      <li class="distance-item fade-up">
+        <span class="dist-name">Piazza San Carlo</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="--w: 35%"></div></div>
+        <span class="dist-time">5 min</span>
+      </li>
+      <li class="distance-item fade-up">
+        <span class="dist-name">Musei Reali</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="--w: 50%"></div></div>
+        <span class="dist-time">7 min</span>
+      </li>
+      <li class="distance-item fade-up">
+        <span class="dist-name">Parco del Valentino</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="--w: 70%"></div></div>
+        <span class="dist-time">10 min</span>
+      </li>
+    </ul>
+  </div>
+  <div class="location-map fade-up">
+    <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=7.6650%2C45.0600%2C7.7000%2C45.0750&layer=mapnik&marker=45.0668%2C7.6826" title="Mappa" loading="lazy" allowfullscreen></iframe>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="s-contact" id="contatto">
+  <div class="contact-left">
+    <div class="contact-tag fade-up">Contatto</div>
+    <h2 class="contact-title fade-up">Prenota<br>una visita.</h2>
+    <div class="contact-info fade-up">
+      <div class="contact-info-line"><strong>Telefono</strong> · +39 011 123 4567</div>
+      <div class="contact-info-line"><strong>Email</strong> · info@residenzaaurora.it</div>
+      <div class="contact-info-line"><strong>Orari</strong> · Lun–Dom · 9:00–20:00</div>
+    </div>
+  </div>
+  <div class="contact-right">
+    <form class="lux-form" id="luxForm" onsubmit="return false;">
+      <div id="luxFormInner">
+        <div class="lux-form-row">
+          <div class="lux-field">
+            <label>Nome</label>
+            <input type="text" id="lf-nome" placeholder="Mario" required />
+          </div>
+          <div class="lux-field">
+            <label>Cognome</label>
+            <input type="text" id="lf-cognome" placeholder="Rossi" required />
+          </div>
+        </div>
+        <div class="lux-field">
+          <label>Email</label>
+          <input type="email" id="lf-email" placeholder="mario.rossi@email.it" required />
+        </div>
+        <div class="lux-field">
+          <label>Telefono</label>
+          <input type="tel" placeholder="+39 333 000 0000" />
+        </div>
+        <div class="lux-field">
+          <label>Messaggio</label>
+          <textarea placeholder="Vorrei fissare una visita..."></textarea>
+        </div>
+        <button type="button" class="lux-btn" onclick="luxSubmit()">
+          Invia richiesta <span class="lux-btn-arrow">→</span>
+        </button>
+      </div>
+      <div class="lux-success" id="luxSuccess">
+        <p>Grazie, ti ricontattiamo presto.</p>
+        <small>Riceverai una conferma all'indirizzo email fornito entro 24 ore.</small>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-brand">Residenza Aurora · Torino</span>
+  <span class="footer-note">Demo — realizzato con HTML/CSS/JS puro · © 2026</span>
+</footer>
+
+<!-- VERSION SWITCH -->
+<div class="version-switch">
+  <a href="index.html" class="vs-pill">Versione Vivace</a>
+  <a href="luxury.html" class="vs-pill active">Versione Luxury</a>
+</div>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ===== PRELOADER =====
+(function() {
+  const wrap = document.getElementById('preLines');
+  const heights = [24, 40, 60, 80, 60, 40, 24];
+  heights.forEach(h => {
+    const l = document.createElement('div');
+    l.className = 'pre-line';
+    l.style.height = h + 'px';
+    wrap.appendChild(l);
+  });
+
+  const tl = gsap.timeline();
+  tl.to('#preLogo', { opacity: 1, duration: 0.6, ease: 'power2.out' })
+    .from('.pre-line', {
+      scaleY: 0, opacity: 0,
+      stagger: 0.07, duration: 0.5,
+      ease: 'power3.out'
+    }, '-=0.2')
+    .to('.pre-line', {
+      scaleY: 0, opacity: 0,
+      stagger: 0.05, duration: 0.4,
+      ease: 'power3.in'
+    }, '+=0.4')
+    .to('#preloader', {
+      yPercent: -100,
+      duration: 0.9,
+      ease: 'power4.inOut',
+      onComplete: () => {
+        document.getElementById('preloader').style.display = 'none';
+        initAnimations();
+      }
+    }, '-=0.2');
+
+  // Hero text entrance (runs after preloader)
+  function initAnimations() {
+    gsap.from('#heroEyebrow span', { y: '110%', duration: 0.9, ease: 'power3.out', delay: 0.1 });
+    gsap.from('#heroLine1', { y: '110%', duration: 1, ease: 'power3.out', delay: 0.25 });
+    gsap.from('#heroLine2', { y: '110%', duration: 1, ease: 'power3.out', delay: 0.4 });
+    gsap.from('#heroMeta', { opacity: 0, y: 20, duration: 0.8, ease: 'power2.out', delay: 0.7 });
+  }
+})();
+
+// ===== NAVBAR =====
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('solid', window.scrollY > 60);
+});
+
+// ===== HERO PARALLAX =====
+gsap.to('#heroBg', {
+  yPercent: 25,
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '.s-hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: true
+  }
+});
+
+// ===== COUNTERS =====
+document.querySelectorAll('.counter').forEach(el => {
+  const target = parseInt(el.dataset.target);
+  gsap.fromTo(el,
+    { innerText: 0 },
+    {
+      innerText: target,
+      duration: 1.8,
+      ease: 'power2.out',
+      snap: { innerText: 1 },
+      scrollTrigger: { trigger: el, start: 'top 85%', once: true }
+    }
+  );
+});
+
+// ===== FEATURE IMAGE PARALLAX =====
+document.querySelectorAll('.feature-image img').forEach(img => {
+  gsap.to(img, {
+    yPercent: 10,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: img.closest('.s-feature'),
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true
+    }
+  });
+});
+
+// ===== INTERSECTION OBSERVER (clip + fade) =====
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    // Clip reveal for images
+    if (el.classList.contains('clip-image')) {
+      gsap.to(el, {
+        clipPath: 'inset(0 0% 0 0)',
+        duration: 1.4,
+        ease: 'power4.inOut'
+      });
+    }
+    // Fade-up for text elements
+    if (el.classList.contains('fade-up')) {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
+        ease: 'power3.out',
+        delay: el.dataset.delay ? parseFloat(el.dataset.delay) : 0
+      });
+    }
+    revealObs.unobserve(el);
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.clip-image, .fade-up').forEach(el => {
+  // Set initial state via JS (so non-JS users see content)
+  if (el.classList.contains('clip-image')) {
+    el.style.clipPath = 'inset(0 100% 0 0)';
+  }
+  revealObs.observe(el);
+});
+
+// Stagger delays for feature-specs
+document.querySelectorAll('.s-feature').forEach(section => {
+  section.querySelectorAll('.spec-line.fade-up').forEach((el, i) => {
+    el.dataset.delay = (i * 0.1).toString();
+  });
+});
+
+// ===== HORIZONTAL GALLERY =====
+window.addEventListener('load', () => {
+  const track = document.getElementById('galleryTrack');
+  const wrap  = document.getElementById('galleryWrap');
+  if (!track || !wrap) return;
+
+  const scrollDist = track.scrollWidth - window.innerWidth;
+  if (scrollDist <= 0) return;
+
+  gsap.to(track, {
+    x: -scrollDist,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.s-gallery',
+      start: 'top top',
+      end: '+=' + scrollDist,
+      pin: true,
+      scrub: 1,
+      anticipatePin: 1,
+      invalidateOnRefresh: true
+    }
+  });
+});
+
+// ===== DISTANCE BARS =====
+const distObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('.dist-bar').forEach(bar => {
+      setTimeout(() => bar.classList.add('animated'), 200);
+    });
+    distObs.unobserve(entry.target);
+  });
+}, { threshold: 0.3 });
+const distSection = document.querySelector('.s-location');
+if (distSection) distObs.observe(distSection);
+
+// ===== FORM =====
+function luxSubmit() {
+  const nome  = document.getElementById('lf-nome').value.trim();
+  const email = document.getElementById('lf-email').value.trim();
+  if (!nome || !email) { alert('Compila almeno nome ed email.'); return; }
+  gsap.to('#luxFormInner', {
+    opacity: 0, y: -10, duration: 0.3,
+    onComplete: () => {
+      document.getElementById('luxFormInner').style.display = 'none';
+      document.getElementById('luxSuccess').classList.add('show');
+      gsap.from('#luxSuccess', { opacity: 0, y: 10, duration: 0.5 });
+    }
+  });
+}
+</script>
+</body>
+</html>

@@ -891,5 +891,35 @@
       document.getElementById('form-success').classList.add('show');
     }
   </script>
+
+  <!-- VERSION SWITCH -->
+  <style>
+    .version-switch {
+      position: fixed;
+      bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      z-index: 200;
+      display: flex; gap: 0.5rem;
+    }
+    .vs-pill {
+      background: rgba(21,19,16,0.82);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.7);
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.2s;
+      display: inline-block;
+    }
+    .vs-pill.active { background: #fff; color: #1a1a2e; }
+    .vs-pill:not(.active):hover { background: rgba(255,255,255,0.1); color: #fff; }
+  </style>
+  <div class="version-switch">
+    <a href="index.html" class="vs-pill active">Versione Vivace</a>
+    <a href="luxury.html" class="vs-pill">Versione Luxury</a>
+  </div>
 </body>
 </html>
