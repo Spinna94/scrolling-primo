@@ -362,12 +362,15 @@
     .floor-zone:hover .floor-hit { fill: rgba(200,169,126,0.15); }
     .floor-zone.has-plan { cursor: pointer; }
     .floor-zone.has-plan:hover .floor-hit { fill: rgba(200,169,126,0.30); }
-    .f-sep { stroke: rgba(255,255,255,0.18); stroke-width: 0.7; pointer-events: none; }
-    .f-label { font-family: 'DM Sans',sans-serif; font-size: 11px; font-weight: 300; fill: rgba(255,255,255,0.4); pointer-events: none; transition: fill 0.2s; }
-    .floor-zone:hover .f-label { fill: rgba(255,255,255,0.9); }
-    .f-badge { font-family: 'DM Sans',sans-serif; font-size: 8.5px; fill: rgba(200,169,126,0.6); pointer-events: none; }
+    .f-sep { stroke: rgba(255,255,255,0.28); stroke-width: 0.8; pointer-events: none; }
+    .f-label-bg { fill: rgba(12,10,8,0.82); pointer-events: none; }
+    .floor-zone:hover .f-label-bg { fill: rgba(22,18,12,0.92); }
+    .floor-zone.has-plan .f-label-bg { fill: rgba(12,10,8,0.90); }
+    .f-label { font-family: 'DM Sans',sans-serif; font-size: 11px; font-weight: 300; fill: rgba(255,255,255,0.90); pointer-events: none; transition: fill 0.2s; }
+    .floor-zone:hover .f-label { fill: rgba(255,255,255,1); }
+    .f-badge { font-family: 'DM Sans',sans-serif; font-size: 8.5px; fill: rgba(200,169,126,0.82); pointer-events: none; }
     .floor-zone.has-plan .f-badge { fill: var(--accent); }
-    .f-tick { stroke: rgba(255,255,255,0.12); stroke-width: 0.7; pointer-events: none; }
+    .f-tick { stroke: rgba(255,255,255,0.22); stroke-width: 0.7; pointer-events: none; }
     .floor-zone.has-plan .f-tick { stroke: rgba(200,169,126,0.45); }
     .f-dash { fill: none; stroke: rgba(200,169,126,0.5); stroke-width: 1.2; stroke-dasharray: 5,4; pointer-events: none; }
     .continue-hint {
@@ -477,99 +480,103 @@
         Building tower: x≈460..1240, y≈28..668 — 9 piani + rooftop
         Separator y values: 28 / 95 / 158 / 221 / 284 / 347 / 410 / 473 / 536 / 599 / 668
       -->
+      <!--
+        Separators follow building perspective: left edge x=460, right edge x=1240
+        Slope: right side +7px lower than left (building viewed from slight left angle)
+        8 piani + rooftop. Each floor ≈73px. Zone hit areas are parallelograms.
+      -->
       <svg class="floors-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
 
-        <!-- Separator lines across building width -->
-        <line class="f-sep" x1="460" y1="95"  x2="1240" y2="95"/>
-        <line class="f-sep" x1="460" y1="158" x2="1240" y2="158"/>
-        <line class="f-sep" x1="460" y1="221" x2="1240" y2="221"/>
-        <line class="f-sep" x1="460" y1="284" x2="1240" y2="284"/>
-        <line class="f-sep" x1="460" y1="347" x2="1240" y2="347"/>
-        <line class="f-sep" x1="460" y1="410" x2="1240" y2="410"/>
-        <line class="f-sep" x1="460" y1="473" x2="1240" y2="473"/>
-        <line class="f-sep" x1="460" y1="536" x2="1240" y2="536"/>
-        <line class="f-sep" x1="460" y1="599" x2="1240" y2="599"/>
+        <!-- Separator lines — building width only, perspective-sloped -->
+        <line class="f-sep" x1="460" y1="105" x2="1240" y2="112"/>
+        <line class="f-sep" x1="460" y1="178" x2="1240" y2="185"/>
+        <line class="f-sep" x1="460" y1="251" x2="1240" y2="258"/>
+        <line class="f-sep" x1="460" y1="324" x2="1240" y2="331"/>
+        <line class="f-sep" x1="460" y1="397" x2="1240" y2="404"/>
+        <line class="f-sep" x1="460" y1="470" x2="1240" y2="477"/>
+        <line class="f-sep" x1="460" y1="543" x2="1240" y2="550"/>
+        <line class="f-sep" x1="460" y1="608" x2="1240" y2="615"/>
 
-        <!-- Rooftop -->
+        <!-- Rooftop: y 28→105 (left edge) -->
         <g class="floor-zone" id="fz-roof" onclick="floorClick('Rooftop')">
-          <rect class="floor-hit" x="460" y="28" width="780" height="67"/>
-          <line class="f-tick" x1="230" y1="61" x2="460" y2="61"/>
-          <text class="f-label" x="222" y="57" text-anchor="end">Rooftop</text>
-          <text class="f-badge" x="222" y="68" text-anchor="end">Giardino Pensile</text>
+          <polygon class="floor-hit" points="460,28 1240,35 1240,112 460,105"/>
+          <line class="f-tick" x1="232" y1="67" x2="460" y2="67"/>
+          <rect class="f-label-bg" x="48" y="55" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="68" text-anchor="end">Rooftop</text>
+          <text class="f-badge" x="216" y="80" text-anchor="end">Giardino Pensile</text>
         </g>
 
-        <!-- Piano 9° -->
-        <g class="floor-zone" id="fz-9" onclick="floorClick(9)">
-          <rect class="floor-hit" x="460" y="95" width="780" height="63"/>
-          <line class="f-tick" x1="230" y1="126" x2="460" y2="126"/>
-          <text class="f-label" x="222" y="122" text-anchor="end">Piano 9°</text>
-          <text class="f-badge" x="222" y="133" text-anchor="end">1 unità disponibile</text>
-        </g>
-
-        <!-- Piano 8° -->
+        <!-- Piano 8°: y 105→178 (left edge) -->
         <g class="floor-zone" id="fz-8" onclick="floorClick(8)">
-          <rect class="floor-hit" x="460" y="158" width="780" height="63"/>
-          <line class="f-tick" x1="230" y1="189" x2="460" y2="189"/>
-          <text class="f-label" x="222" y="185" text-anchor="end">Piano 8°</text>
-          <text class="f-badge" x="222" y="196" text-anchor="end">2 unità disponibili</text>
+          <polygon class="floor-hit" points="460,105 1240,112 1240,185 460,178"/>
+          <line class="f-tick" x1="232" y1="142" x2="460" y2="142"/>
+          <rect class="f-label-bg" x="48" y="130" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="143" text-anchor="end">Piano 8°</text>
+          <text class="f-badge" x="216" y="155" text-anchor="end">2 unità disponibili</text>
         </g>
 
-        <!-- Piano 7° -->
+        <!-- Piano 7°: y 178→251 (left edge) -->
         <g class="floor-zone" id="fz-7" onclick="floorClick(7)">
-          <rect class="floor-hit" x="460" y="221" width="780" height="63"/>
-          <line class="f-tick" x1="230" y1="252" x2="460" y2="252"/>
-          <text class="f-label" x="222" y="248" text-anchor="end">Piano 7°</text>
-          <text class="f-badge" x="222" y="259" text-anchor="end">2 unità disponibili</text>
+          <polygon class="floor-hit" points="460,178 1240,185 1240,258 460,251"/>
+          <line class="f-tick" x1="232" y1="215" x2="460" y2="215"/>
+          <rect class="f-label-bg" x="48" y="203" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="216" text-anchor="end">Piano 7°</text>
+          <text class="f-badge" x="216" y="228" text-anchor="end">2 unità disponibili</text>
         </g>
 
-        <!-- Piano 6° -->
+        <!-- Piano 6°: y 251→324 (left edge) -->
         <g class="floor-zone" id="fz-6" onclick="floorClick(6)">
-          <rect class="floor-hit" x="460" y="284" width="780" height="63"/>
-          <line class="f-tick" x1="230" y1="315" x2="460" y2="315"/>
-          <text class="f-label" x="222" y="311" text-anchor="end">Piano 6°</text>
-          <text class="f-badge" x="222" y="322" text-anchor="end">1 unità disponibile</text>
+          <polygon class="floor-hit" points="460,251 1240,258 1240,331 460,324"/>
+          <line class="f-tick" x1="232" y1="288" x2="460" y2="288"/>
+          <rect class="f-label-bg" x="48" y="276" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="289" text-anchor="end">Piano 6°</text>
+          <text class="f-badge" x="216" y="301" text-anchor="end">1 unità disponibile</text>
         </g>
 
-        <!-- Piano 5° -->
+        <!-- Piano 5°: y 324→397 (left edge) -->
         <g class="floor-zone" id="fz-5" onclick="floorClick(5)">
-          <rect class="floor-hit" x="460" y="347" width="780" height="63"/>
-          <line class="f-tick" x1="230" y1="378" x2="460" y2="378"/>
-          <text class="f-label" x="222" y="374" text-anchor="end">Piano 5°</text>
-          <text class="f-badge" x="222" y="385" text-anchor="end">3 unità disponibili</text>
+          <polygon class="floor-hit" points="460,324 1240,331 1240,404 460,397"/>
+          <line class="f-tick" x1="232" y1="361" x2="460" y2="361"/>
+          <rect class="f-label-bg" x="48" y="349" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="362" text-anchor="end">Piano 5°</text>
+          <text class="f-badge" x="216" y="374" text-anchor="end">3 unità disponibili</text>
         </g>
 
-        <!-- Piano 4° -->
+        <!-- Piano 4°: y 397→470 (left edge) -->
         <g class="floor-zone" id="fz-4" onclick="floorClick(4)">
-          <rect class="floor-hit" x="460" y="410" width="780" height="63"/>
-          <line class="f-tick" x1="230" y1="441" x2="460" y2="441"/>
-          <text class="f-label" x="222" y="437" text-anchor="end">Piano 4°</text>
-          <text class="f-badge" x="222" y="448" text-anchor="end">2 unità disponibili</text>
+          <polygon class="floor-hit" points="460,397 1240,404 1240,477 460,470"/>
+          <line class="f-tick" x1="232" y1="434" x2="460" y2="434"/>
+          <rect class="f-label-bg" x="48" y="422" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="435" text-anchor="end">Piano 4°</text>
+          <text class="f-badge" x="216" y="447" text-anchor="end">2 unità disponibili</text>
         </g>
 
-        <!-- Piano 3° — PIANTINA DISPONIBILE -->
+        <!-- Piano 3° — PIANTINA: y 470→543 (left edge) -->
         <g class="floor-zone has-plan" id="fz-3" onclick="location.href='piantina.html'">
-          <rect class="floor-hit" x="460" y="473" width="780" height="63"/>
-          <!-- Dashed highlight border -->
-          <rect class="f-dash" x="461" y="474" width="778" height="61"/>
-          <line class="f-tick" x1="200" y1="504" x2="460" y2="504"/>
-          <text class="f-label" x="192" y="499" text-anchor="end">Piano 3°</text>
-          <text class="f-badge" x="192" y="512" text-anchor="end">Piantina disponibile →</text>
+          <polygon class="floor-hit" points="460,470 1240,477 1240,550 460,543"/>
+          <polygon class="f-dash" points="461,471 1239,478 1239,549 461,542"/>
+          <line class="f-tick" x1="200" y1="507" x2="460" y2="507"/>
+          <rect class="f-label-bg" x="18" y="495" width="214" height="30" rx="4"/>
+          <text class="f-label" x="222" y="508" text-anchor="end">Piano 3°</text>
+          <text class="f-badge" x="222" y="520" text-anchor="end">Piantina disponibile →</text>
         </g>
 
-        <!-- Piano 2° -->
+        <!-- Piano 2°: y 543→608 (left edge) -->
         <g class="floor-zone" id="fz-2" onclick="floorClick(2)">
-          <rect class="floor-hit" x="460" y="536" width="780" height="63"/>
-          <line class="f-tick" x1="230" y1="567" x2="460" y2="567"/>
-          <text class="f-label" x="222" y="563" text-anchor="end">Piano 2°</text>
-          <text class="f-badge" x="222" y="574" text-anchor="end">2 unità disponibili</text>
+          <polygon class="floor-hit" points="460,543 1240,550 1240,615 460,608"/>
+          <line class="f-tick" x1="232" y1="576" x2="460" y2="576"/>
+          <rect class="f-label-bg" x="48" y="564" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="577" text-anchor="end">Piano 2°</text>
+          <text class="f-badge" x="216" y="589" text-anchor="end">2 unità disponibili</text>
         </g>
 
-        <!-- Piano 1° / Terra -->
+        <!-- Piano 1°: y 608→668 (left edge) -->
         <g class="floor-zone" id="fz-1" onclick="floorClick(1)">
-          <rect class="floor-hit" x="460" y="599" width="780" height="69"/>
-          <line class="f-tick" x1="230" y1="633" x2="460" y2="633"/>
-          <text class="f-label" x="222" y="629" text-anchor="end">Piano 1°</text>
-          <text class="f-badge" x="222" y="640" text-anchor="end">1 unità disponibile</text>
+          <polygon class="floor-hit" points="460,608 1240,615 1240,675 460,668"/>
+          <line class="f-tick" x1="232" y1="638" x2="460" y2="638"/>
+          <rect class="f-label-bg" x="48" y="626" width="178" height="30" rx="4"/>
+          <text class="f-label" x="216" y="639" text-anchor="end">Piano 1°</text>
+          <text class="f-badge" x="216" y="651" text-anchor="end">1 unità disponibile</text>
         </g>
 
       </svg>
