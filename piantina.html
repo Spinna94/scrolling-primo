@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immobilads — Piantina Piano Tipo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --serif:  'Cormorant Garamond', Georgia, serif;
+      --sans:   'DM Sans', system-ui, sans-serif;
+      --bg:     #F6F3EE;
+      --dark:   #141210;
+      --muted:  #7A7468;
+      --accent: #C8A97E;
+      --wall:   #2E2A25;
+      --col-a:  #D4E4D4;
+      --col-b:  #D4DCE8;
+      --col-c:  #E8D8CC;
+      --col-d:  #E4DCC8;
+      --col-a-h:#B8D4B8;
+      --col-b-h:#B8C8DE;
+      --col-c-h:#D8C0B0;
+      --col-d-h:#D4C8A8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { font-family: var(--sans); background: var(--bg); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; font-weight: 300; }
+
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 2rem; border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: var(--bg); position: sticky; top: 0; z-index: 50;
+    }
+    .nav-brand { font-family: var(--serif); font-size: 1rem; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; color: var(--dark); }
+    .nav-center { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .nav-back { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.18); padding-bottom: 1px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--dark); }
+
+    .page-header {
+      padding: 2rem 2rem 1.25rem;
+      display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;
+    }
+    .ph-tag { font-size: 0.67rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+    .ph-title { font-family: var(--serif); font-size: clamp(1.6rem, 2.5vw, 2.4rem); font-weight: 300; }
+    .ph-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+    .legend { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 0.45rem; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--muted); cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 4px; transition: background 0.15s; }
+    .legend-item:hover { background: rgba(0,0,0,0.05); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    .main { flex: 1; display: grid; grid-template-columns: 1fr 360px; gap: 1.5rem; padding: 0 2rem 2rem; align-items: start; }
+
+    .plan-wrap { position: relative; }
+    .plan-hint { font-size: 0.68rem; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 0.6rem; text-align: center; animation: blink 2.5s ease-in-out infinite; }
+    .plan-hint.hidden { display: none; }
+    @keyframes blink { 0%,100%{opacity:.4} 50%{opacity:.9} }
+    #floorplan { width: 100%; height: auto; display: block; border-radius: 4px; }
+
+    /* SVG interactive styles */
+    .apt-zone { cursor: pointer; }
+    .apt-fill { transition: fill 0.2s; }
+    .apt-zone:hover .apt-fill { filter: brightness(0.91); }
+    .apt-zone.selected .apt-fill { filter: brightness(0.84); }
+    .apt-zone.selected .apt-outline { stroke-width: 3; }
+
+    .rl { /* room label */
+      font-family: 'DM Sans', sans-serif;
+      font-size: 8.5px; font-weight: 400;
+      fill: rgba(30,25,20,0.52);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      pointer-events: none; user-select: none;
+    }
+    .rl.sm { font-size: 7px; fill: rgba(30,25,20,0.38); }
+    .apt-lbl { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 300; fill: rgba(30,25,20,0.38); pointer-events: none; }
+    .apt-sqm { font-family: 'DM Sans', sans-serif; font-size: 7.5px; fill: rgba(30,25,20,0.3); pointer-events: none; }
+    .core-lbl { font-family: 'DM Sans', sans-serif; font-size: 7.5px; font-weight: 500; fill: rgba(30,25,20,0.4); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
+    .compass-t { font-family: 'DM Sans', sans-serif; font-size: 7px; font-weight: 500; fill: #7A7468; letter-spacing: 0.1em; }
+    .scale-t { font-family: 'DM Sans', sans-serif; font-size: 6.5px; fill: #7A7468; letter-spacing: 0.06em; }
+    .floor-t { font-family: 'DM Sans', sans-serif; font-size: 7px; fill: rgba(30,25,20,0.3); letter-spacing: 0.1em; }
+
+    /* Info panel */
+    .info-panel { position: sticky; top: 80px; background: #fff; border-radius: 14px; border: 1px solid rgba(0,0,0,0.07); overflow: hidden; box-shadow: 0 4px 28px rgba(0,0,0,0.07); }
+    .info-panel.empty { opacity: 0.45; pointer-events: none; }
+
+    .panel-empty { padding: 3rem 1.5rem; text-align: center; color: var(--muted); }
+    .panel-empty .em-icon { font-size: 2.2rem; opacity: 0.3; margin-bottom: 0.75rem; }
+    .panel-empty p { font-size: 0.83rem; line-height: 1.65; }
+
+    .ph { padding: 1.4rem 1.5rem 1.2rem; border-bottom: 1px solid rgba(0,0,0,0.06); position: relative; }
+    .ph-apt-tag { font-size: 0.63rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.45rem; }
+    .ph-apt-name { font-family: var(--serif); font-size: 1.6rem; font-weight: 300; line-height: 1.1; margin-bottom: 0.25rem; }
+    .ph-apt-pos { font-size: 0.76rem; color: var(--muted); }
+    .ph-status { position: absolute; top: 1.4rem; right: 1.5rem; display: flex; align-items: center; gap: 0.38rem; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; }
+    .ph-status-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .s-available .ph-status-dot { background: #5aaa5a; } .s-available .ph-status-txt { color: #3a8a3a; }
+    .s-sold      .ph-status-dot { background: #cc4444; } .s-sold .ph-status-txt { color: #cc4444; }
+    .s-reserved  .ph-status-dot { background: #e8a040; } .s-reserved .ph-status-txt { color: #a07020; }
+
+    .p-stats { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .p-stat { padding: 0.9rem 0.75rem; text-align: center; border-right: 1px solid rgba(0,0,0,0.06); }
+    .p-stat:last-child { border-right: none; }
+    .p-stat-val { font-family: var(--serif); font-size: 1.55rem; font-weight: 300; display: block; line-height: 1; }
+    .p-stat-lbl { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 0.22rem; display: block; }
+
+    .p-price { padding: 0.9rem 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .p-price-lbl { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+    .p-price-val { font-family: var(--serif); font-size: 1.45rem; font-weight: 300; }
+
+    .p-feats { padding: 0.9rem 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .p-feats-title { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem; }
+    .p-feats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+    .p-feat { display: flex; align-items: flex-start; gap: 0.35rem; font-size: 0.76rem; color: #444; line-height: 1.45; }
+    .p-feat::before { content: '–'; color: var(--accent); flex-shrink: 0; font-size: 0.7rem; margin-top: 0.08rem; }
+
+    .p-cta { padding: 1rem 1.5rem; }
+    .p-cta-btn { display: block; width: 100%; text-align: center; background: var(--dark); color: #fff; padding: 0.85rem; font-size: 0.73rem; letter-spacing: 0.18em; text-transform: uppercase; border: none; cursor: pointer; font-family: var(--sans); transition: background 0.2s; }
+    .p-cta-btn:hover:not(:disabled) { background: #2a2520; }
+    .p-cta-btn:disabled { background: #bbb; cursor: not-allowed; }
+
+    footer { border-top: 1px solid rgba(0,0,0,0.07); padding: 1.1rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--muted); }
+    .vs { display: flex; gap: 0.35rem; }
+    .vs a { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); color: var(--muted); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: background 0.15s; }
+    .vs a.active { background: var(--dark); color: #fff; border-color: transparent; }
+    .vs a:not(.active):hover { background: rgba(0,0,0,0.1); color: var(--dark); }
+
+    @media (max-width: 860px) {
+      .main { grid-template-columns: 1fr; }
+      .info-panel { position: static; }
+      nav { padding: 1rem; } .nav-center { display: none; }
+      .page-header { padding: 1.25rem 1rem 1rem; }
+      .main { padding: 0 1rem 1.5rem; }
+      footer { flex-direction: column; gap: 0.75rem; padding: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="immobilads.html">Immobilads</a>
+  <span class="nav-center">Piantina Interattiva · Piano Tipo</span>
+  <a class="nav-back" href="immobilads.html">← Sito principale</a>
+</nav>
+
+<div class="page-header">
+  <div>
+    <div class="ph-tag">Lido di Borgio · Edificio A</div>
+    <h1 class="ph-title">Piano 3° — Piano Tipo</h1>
+    <p class="ph-sub">Clicca su un appartamento per esplorarlo</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item" onclick="selectApt('A')"><div class="legend-dot" style="background:var(--col-a)"></div>App. A · 95 m²</div>
+    <div class="legend-item" onclick="selectApt('B')"><div class="legend-dot" style="background:var(--col-b)"></div>App. B · 75 m²</div>
+    <div class="legend-item" onclick="selectApt('C')"><div class="legend-dot" style="background:var(--col-c)"></div>App. C · 80 m²</div>
+    <div class="legend-item" onclick="selectApt('D')"><div class="legend-dot" style="background:var(--col-d)"></div>App. D · 110 m²</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="plan-wrap">
+    <p class="plan-hint" id="planHint">↑ Seleziona un appartamento sulla piantina</p>
+
+    <!--
+      ViewBox: 0 0 900 580
+      Building outer rect: x=50 y=80 w=800 h=420  (y=80..500)
+      Core (stairs+lift): x=370 y=80 w=160 h=420
+      APP A (NW): x=50  y=80  w=320 h=210  (y=80..290)
+      APP D (SW): x=50  y=290 w=320 h=210  (y=290..500)
+      APP B (NE): x=530 y=80  w=320 h=210  (y=80..290)
+      APP C (SE): x=530 y=290 w=320 h=210  (y=290..500)
+      Loggias protrude: A&B north (y=40..80), D&C south (y=500..540)
+    -->
+    <svg id="floorplan" viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="7" stroke="rgba(0,0,0,0.13)" stroke-width="1"/>
+        </pattern>
+      </defs>
+
+      <!-- ======= BACKGROUND ======= -->
+      <rect width="900" height="580" fill="#F6F3EE"/>
+
+      <!-- ======= LOGGIAS ======= -->
+      <!-- A north loggia -->
+      <rect x="50" y="40" width="320" height="40" fill="var(--col-a)" opacity="0.55"/>
+      <rect x="50" y="40" width="320" height="40" fill="url(#hatch)"/>
+      <rect x="50" y="40" width="320" height="40" fill="none" stroke="var(--wall)" stroke-width="1.8"/>
+      <text x="210" y="64" class="rl sm" text-anchor="middle">loggia nord · 12 m²</text>
+
+      <!-- B north loggia -->
+      <rect x="530" y="40" width="320" height="40" fill="var(--col-b)" opacity="0.55"/>
+      <rect x="530" y="40" width="320" height="40" fill="url(#hatch)"/>
+      <rect x="530" y="40" width="320" height="40" fill="none" stroke="var(--wall)" stroke-width="1.8"/>
+      <text x="690" y="64" class="rl sm" text-anchor="middle">loggia nord · 8 m²</text>
+
+      <!-- D south loggia -->
+      <rect x="50" y="500" width="320" height="40" fill="var(--col-d)" opacity="0.55"/>
+      <rect x="50" y="500" width="320" height="40" fill="url(#hatch)"/>
+      <rect x="50" y="500" width="320" height="40" fill="none" stroke="var(--wall)" stroke-width="1.8"/>
+      <text x="210" y="524" class="rl sm" text-anchor="middle">loggia sud · 18 m²</text>
+
+      <!-- C south loggia -->
+      <rect x="530" y="500" width="320" height="40" fill="var(--col-c)" opacity="0.55"/>
+      <rect x="530" y="500" width="320" height="40" fill="url(#hatch)"/>
+      <rect x="530" y="500" width="320" height="40" fill="none" stroke="var(--wall)" stroke-width="1.8"/>
+      <text x="690" y="524" class="rl sm" text-anchor="middle">loggia sud · 10 m²</text>
+
+      <!-- ======= APPARTAMENTO A — NW (x=50,y=80 → x=370,y=290) ======= -->
+      <g class="apt-zone" id="zone-A" onclick="selectApt('A')">
+        <!-- Base fill -->
+        <rect class="apt-fill" x="50" y="80" width="320" height="210" fill="var(--col-a)"/>
+        <!-- Internal room divisions -->
+        <!-- Vertical: soggiorno | cucina+entry (x=220) full height -->
+        <line x1="220" y1="80" x2="220" y2="230" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Vertical: bagno | entry (x=310) top half -->
+        <line x1="310" y1="80" x2="310" y2="180" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: top zone | sleeping zone (y=230) -->
+        <line x1="50" y1="230" x2="370" y2="230" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Vertical: cam1 | cam2 in sleeping zone (x=210) -->
+        <line x1="210" y1="230" x2="210" y2="290" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: bagno divider top zone (y=180) -->
+        <line x1="310" y1="180" x2="370" y2="180" stroke="var(--wall)" stroke-width="1.4"/>
+
+        <!-- Outline (on top of fill, below room walls) -->
+        <rect class="apt-outline" x="50" y="80" width="320" height="210" fill="none" stroke="var(--wall)" stroke-width="2.2"/>
+
+        <!-- Door arc suggestions -->
+        <path d="M220,195 A15,15 0 0,1 235,180" fill="none" stroke="var(--wall)" stroke-width="1" opacity="0.5"/>
+        <path d="M310,155 A14,14 0 0,0 296,168" fill="none" stroke="var(--wall)" stroke-width="1" opacity="0.5"/>
+
+        <!-- Room labels -->
+        <text x="135" y="156" class="rl" text-anchor="middle">Soggiorno</text>
+        <text x="135" y="168" class="rl" text-anchor="middle">/ Cucina</text>
+        <text x="265" y="130" class="rl" text-anchor="middle">Ingresso</text>
+        <text x="340" y="135" class="rl" text-anchor="middle">Bagno</text>
+        <text x="340" y="145" class="rl" text-anchor="middle">1</text>
+        <text x="340" y="215" class="rl" text-anchor="middle">Bagno</text>
+        <text x="340" y="225" class="rl" text-anchor="middle">2</text>
+        <text x="130" y="263" class="rl" text-anchor="middle">Camera</text>
+        <text x="130" y="274" class="rl" text-anchor="middle">Matrimoniale</text>
+        <text x="290" y="263" class="rl" text-anchor="middle">Camera</text>
+        <text x="290" y="274" class="rl" text-anchor="middle">Singola</text>
+
+        <!-- Apt identifier + status -->
+        <text x="68" y="112" class="apt-lbl">A</text>
+        <text x="68" y="124" class="apt-sqm">95 m²  ·  3 cam</text>
+        <circle cx="355" cy="100" r="5" fill="#5aaa5a"/>
+      </g>
+
+      <!-- ======= APPARTAMENTO D — SW (x=50,y=290 → x=370,y=500) ======= -->
+      <g class="apt-zone" id="zone-D" onclick="selectApt('D')">
+        <rect class="apt-fill" x="50" y="290" width="320" height="210" fill="var(--col-d)"/>
+        <!-- Vertical: soggiorno | rest (x=190) -->
+        <line x1="190" y1="290" x2="190" y2="500" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: living | camere (y=390) -->
+        <line x1="190" y1="390" x2="370" y2="390" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Vertical: studio | bagno in top right zone (x=300) -->
+        <line x1="300" y1="290" x2="300" y2="390" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Vertical: cam2 | cam3 in bottom right zone (x=280) -->
+        <line x1="280" y1="390" x2="280" y2="500" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: bagno separator (y=440) right sub-zone -->
+        <line x1="280" y1="440" x2="370" y2="440" stroke="var(--wall)" stroke-width="1.4"/>
+
+        <rect class="apt-outline" x="50" y="290" width="320" height="210" fill="none" stroke="var(--wall)" stroke-width="2.2"/>
+
+        <!-- Door arcs -->
+        <path d="M190,350 A15,15 0 0,0 205,337" fill="none" stroke="var(--wall)" stroke-width="1" opacity="0.5"/>
+
+        <!-- Room labels -->
+        <text x="120" y="395" class="rl" text-anchor="middle">Soggiorno</text>
+        <text x="245" y="325" class="rl" text-anchor="middle">Studio</text>
+        <text x="335" y="325" class="rl" text-anchor="middle">Cucina</text>
+        <text x="120" y="445" class="rl" text-anchor="middle">Camera</text>
+        <text x="120" y="457" class="rl" text-anchor="middle">Matrimoniale</text>
+        <text x="235" y="445" class="rl" text-anchor="middle">Cam 2</text>
+        <text x="325" y="420" class="rl" text-anchor="middle">Cam 3</text>
+        <text x="325" y="470" class="rl" text-anchor="middle">Bagno</text>
+
+        <text x="68" y="322" class="apt-lbl">D</text>
+        <text x="68" y="334" class="apt-sqm">110 m²  ·  3 cam</text>
+        <circle cx="355" cy="310" r="5" fill="#5aaa5a"/>
+      </g>
+
+      <!-- ======= APPARTAMENTO B — NE (x=530,y=80 → x=850,y=290) ======= -->
+      <g class="apt-zone" id="zone-B" onclick="selectApt('B')">
+        <rect class="apt-fill" x="530" y="80" width="320" height="210" fill="var(--col-b)"/>
+        <!-- Vertical: soggiorno | cucina+bagno (x=710) -->
+        <line x1="710" y1="80" x2="710" y2="290" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: zona giorno | zona notte (y=190) -->
+        <line x1="530" y1="190" x2="850" y2="190" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: bagno in top right (y=140) -->
+        <line x1="710" y1="140" x2="850" y2="140" stroke="var(--wall)" stroke-width="1.4"/>
+
+        <rect class="apt-outline" x="530" y="80" width="320" height="210" fill="none" stroke="var(--wall)" stroke-width="2.2"/>
+
+        <!-- Door arcs -->
+        <path d="M710,168 A16,16 0 0,0 726,155" fill="none" stroke="var(--wall)" stroke-width="1" opacity="0.5"/>
+
+        <!-- Room labels -->
+        <text x="620" y="140" class="rl" text-anchor="middle">Soggiorno</text>
+        <text x="780" y="114" class="rl" text-anchor="middle">Cucina</text>
+        <text x="780" y="168" class="rl" text-anchor="middle">Bagno</text>
+        <text x="620" y="243" class="rl" text-anchor="middle">Camera</text>
+        <text x="620" y="255" class="rl" text-anchor="middle">Matrimoniale</text>
+        <text x="780" y="243" class="rl" text-anchor="middle">Camera</text>
+        <text x="780" y="255" class="rl" text-anchor="middle">Singola</text>
+
+        <text x="548" y="112" class="apt-lbl">B</text>
+        <text x="548" y="124" class="apt-sqm">75 m²  ·  2 cam</text>
+        <circle cx="835" cy="100" r="5" fill="#cc4444"/>
+      </g>
+
+      <!-- ======= APPARTAMENTO C — SE (x=530,y=290 → x=850,y=500) ======= -->
+      <g class="apt-zone" id="zone-C" onclick="selectApt('C')">
+        <rect class="apt-fill" x="530" y="290" width="320" height="210" fill="var(--col-c)"/>
+        <!-- Vertical: soggiorno | cucina+bagno (x=710) -->
+        <line x1="710" y1="290" x2="710" y2="500" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: zona giorno | zona notte (y=390) -->
+        <line x1="530" y1="390" x2="850" y2="390" stroke="var(--wall)" stroke-width="1.4"/>
+        <!-- Horizontal: bagno en suite (y=440) right zone -->
+        <line x1="710" y1="440" x2="850" y2="440" stroke="var(--wall)" stroke-width="1.4"/>
+
+        <rect class="apt-outline" x="530" y="290" width="320" height="210" fill="none" stroke="var(--wall)" stroke-width="2.2"/>
+
+        <!-- Door arcs -->
+        <path d="M710,370 A16,16 0 0,0 726,357" fill="none" stroke="var(--wall)" stroke-width="1" opacity="0.5"/>
+
+        <!-- Room labels -->
+        <text x="620" y="342" class="rl" text-anchor="middle">Soggiorno</text>
+        <text x="780" y="325" class="rl" text-anchor="middle">Cucina</text>
+        <text x="620" y="445" class="rl" text-anchor="middle">Camera</text>
+        <text x="620" y="457" class="rl" text-anchor="middle">Matrimoniale</text>
+        <text x="780" y="420" class="rl" text-anchor="middle">Cam Sing.</text>
+        <text x="780" y="470" class="rl" text-anchor="middle">Bagno</text>
+
+        <text x="548" y="322" class="apt-lbl">C</text>
+        <text x="548" y="334" class="apt-sqm">80 m²  ·  2 cam</text>
+        <circle cx="835" cy="310" r="5" fill="#e8a040"/>
+      </g>
+
+      <!-- ======= CORE — scale + ascensori ======= -->
+      <rect x="370" y="80" width="160" height="420" fill="#E8E4DE" stroke="var(--wall)" stroke-width="2.5"/>
+
+      <!-- Lift boxes -->
+      <rect x="380" y="92" width="60" height="68" fill="#D5D0C8" stroke="var(--wall)" stroke-width="1.2" rx="2"/>
+      <rect x="450" y="92" width="60" height="68" fill="#D5D0C8" stroke="var(--wall)" stroke-width="1.2" rx="2"/>
+      <text x="410" y="130" class="core-lbl" text-anchor="middle">LIFT</text>
+      <text x="480" y="130" class="core-lbl" text-anchor="middle">LIFT</text>
+
+      <!-- Staircase box -->
+      <rect x="380" y="172" width="140" height="110" fill="#CCC9C1" stroke="var(--wall)" stroke-width="1" rx="2"/>
+      <line x1="380" y1="184" x2="520" y2="184" stroke="var(--wall)" stroke-width="0.7" opacity="0.45"/>
+      <line x1="380" y1="196" x2="520" y2="196" stroke="var(--wall)" stroke-width="0.7" opacity="0.45"/>
+      <line x1="380" y1="208" x2="520" y2="208" stroke="var(--wall)" stroke-width="0.7" opacity="0.45"/>
+      <line x1="380" y1="220" x2="520" y2="220" stroke="var(--wall)" stroke-width="0.7" opacity="0.45"/>
+      <line x1="380" y1="232" x2="520" y2="232" stroke="var(--wall)" stroke-width="0.7" opacity="0.45"/>
+      <line x1="380" y1="244" x2="520" y2="244" stroke="var(--wall)" stroke-width="0.7" opacity="0.45"/>
+      <line x1="380" y1="256" x2="520" y2="256" stroke="var(--wall)" stroke-width="0.7" opacity="0.45"/>
+      <text x="450" y="232" class="core-lbl" text-anchor="middle">SCALA</text>
+
+      <!-- Corridor -->
+      <rect x="380" y="292" width="140" height="48" fill="#D8D4CC" stroke="var(--wall)" stroke-width="1" rx="2"/>
+      <text x="450" y="320" class="core-lbl" text-anchor="middle">CORRIDOIO</text>
+
+      <!-- Core bottom -->
+      <text x="450" y="420" class="core-lbl" text-anchor="middle" opacity="0.5">VANO</text>
+      <text x="450" y="433" class="core-lbl" text-anchor="middle" opacity="0.5">TECNICO</text>
+
+      <!-- ======= MAIN BUILDING OUTLINE (drawn last = on top) ======= -->
+      <rect x="50" y="80" width="800" height="420" fill="none" stroke="var(--wall)" stroke-width="3"/>
+      <!-- Internal main dividers -->
+      <!-- Core separators (vertical) -->
+      <line x1="370" y1="80" x2="370" y2="500" stroke="var(--wall)" stroke-width="2.8"/>
+      <line x1="530" y1="80" x2="530" y2="500" stroke="var(--wall)" stroke-width="2.8"/>
+      <!-- Horizontal apt divider NW/SW and NE/SE -->
+      <line x1="50"  y1="290" x2="370" y2="290" stroke="var(--wall)" stroke-width="2.8"/>
+      <line x1="530" y1="290" x2="850" y2="290" stroke="var(--wall)" stroke-width="2.8"/>
+
+      <!-- ======= COMPASS ======= -->
+      <g transform="translate(840,530)">
+        <circle cx="0" cy="0" r="18" fill="white" stroke="rgba(0,0,0,0.09)" stroke-width="1"/>
+        <polygon points="0,-13 3.5,-2 0,2.5 -3.5,-2" fill="var(--dark)" opacity="0.85"/>
+        <polygon points="0,13 3.5,2 0,-2.5 -3.5,2" fill="var(--dark)" opacity="0.18"/>
+        <text x="0" y="-17" class="compass-t" text-anchor="middle">N</text>
+        <text x="0" y="26"  class="compass-t" text-anchor="middle">S</text>
+        <text x="-23" y="3.5" class="compass-t" text-anchor="end">O</text>
+        <text x="23"  y="3.5" class="compass-t">E</text>
+      </g>
+
+      <!-- ======= SCALE BAR ======= -->
+      <g transform="translate(62,548)">
+        <line x1="0" y1="0" x2="80" y2="0" stroke="var(--muted)" stroke-width="1.5"/>
+        <line x1="0" y1="-4" x2="0" y2="4" stroke="var(--muted)" stroke-width="1.5"/>
+        <line x1="80" y1="-4" x2="80" y2="4" stroke="var(--muted)" stroke-width="1.5"/>
+        <text x="40" y="-7" class="scale-t" text-anchor="middle">≈ 10 m</text>
+      </g>
+
+      <!-- ======= FLOOR ID ======= -->
+      <text x="450" y="570" class="floor-t" text-anchor="middle">PIANO 3° — EDIFICIO A · IMMOBILADS · LIDO DI BORGIO (SV) · ESEMPIO</text>
+    </svg>
+  </div>
+
+  <!-- ======= INFO PANEL ======= -->
+  <div class="info-panel empty" id="infoPanel">
+    <div class="panel-empty" id="panelEmpty">
+      <div class="em-icon">⊞</div>
+      <p>Seleziona un appartamento<br>sulla piantina per vedere<br>tutti i dettagli.</p>
+    </div>
+    <div id="panelContent" style="display:none">
+      <div class="ph">
+        <div class="ph-apt-tag" id="pTag"></div>
+        <div class="ph-apt-name" id="pName"></div>
+        <div class="ph-apt-pos"  id="pPos"></div>
+        <div class="ph-status"   id="pStatus">
+          <div class="ph-status-dot"></div>
+          <span class="ph-status-txt" id="pStatusTxt"></span>
+        </div>
+      </div>
+      <div class="p-stats">
+        <div class="p-stat"><span class="p-stat-val" id="pSqm"></span><span class="p-stat-lbl">m² utili</span></div>
+        <div class="p-stat"><span class="p-stat-val" id="pRooms"></span><span class="p-stat-lbl">camere</span></div>
+        <div class="p-stat"><span class="p-stat-val" id="pBaths"></span><span class="p-stat-lbl">bagni</span></div>
+      </div>
+      <div class="p-price">
+        <div class="p-price-lbl">Prezzo indicativo</div>
+        <div class="p-price-val" id="pPrice"></div>
+      </div>
+      <div class="p-feats">
+        <div class="p-feats-title">Caratteristiche</div>
+        <div class="p-feats-grid" id="pFeats"></div>
+      </div>
+      <div class="p-cta">
+        <button class="p-cta-btn" id="pCtaBtn" onclick="reqInfo()"></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>© 2026 Immobilads · Piantina esemplificativa, non in scala</span>
+  <div class="vs">
+    <a href="immobilads.html">Video</a>
+    <a href="piantina.html" class="active">Piantina</a>
+    <a href="luxury.html">Luxury</a>
+    <a href="index.html">Vivace</a>
+  </div>
+</footer>
+
+<script>
+const DATA = {
+  A: {
+    tag:'Appartamento A · Piano 3°', name:'Trilocale Nord-Ovest', pos:'Esposizione Nord / Ovest',
+    sqm:95, rooms:3, baths:2,
+    price:'€ 420.000',
+    status:'available', statusTxt:'Disponibile',
+    feats:['Soggiorno/cucina open space','Camera matrimoniale','Camera singola',
+           'Bagno principale + bagno ospiti','Loggia nord 12 m²','Riscaldamento a pavimento',
+           'Domotica integrata','Infissi triplo vetro','Cantina inclusa','Classe A4'],
+  },
+  B: {
+    tag:'Appartamento B · Piano 3°', name:'Bilocale Nord-Est', pos:'Esposizione Nord / Est',
+    sqm:75, rooms:2, baths:1,
+    price:'— Venduto',
+    status:'sold', statusTxt:'Venduto',
+    feats:['Soggiorno ampio','Cucina separata','Camera matrimoniale',
+           'Camera singola','Bagno con doccia','Loggia nord 8 m²',
+           'Riscaldamento a pavimento','Classe A4'],
+  },
+  C: {
+    tag:'Appartamento C · Piano 3°', name:'Bilocale Sud-Est', pos:'Esposizione Sud / Est — soleggiato',
+    sqm:80, rooms:2, baths:2,
+    price:'€ 360.000',
+    status:'reserved', statusTxt:'Opzionato',
+    feats:['Soggiorno luminoso','Cucina open','Camera matrimoniale con bagno en suite',
+           'Camera singola','Doppio bagno','Loggia sud 10 m²',
+           'Massima esposizione solare','Classe A4'],
+  },
+  D: {
+    tag:'Appartamento D · Piano 3°', name:'Quadrilocale Sud-Ovest', pos:'Esposizione Sud / Ovest · doppio affaccio',
+    sqm:110, rooms:3, baths:2,
+    price:'€ 490.000',
+    status:'available', statusTxt:'Disponibile',
+    feats:['Soggiorno 35 m²','Studio / cabina','Cucina separata',
+           'Camera matrimoniale','2 camere singole','2 bagni completi',
+           'Loggia sud 18 m²','Posto auto + cantina','Classe A4'],
+  },
+};
+
+let current = null;
+
+function selectApt(key) {
+  if (current) {
+    document.getElementById('zone-'+current)?.classList.remove('selected');
+  }
+  current = key;
+  document.getElementById('zone-'+key)?.classList.add('selected');
+  document.getElementById('planHint').classList.add('hidden');
+
+  const d = DATA[key];
+  document.getElementById('infoPanel').classList.remove('empty');
+  document.getElementById('panelEmpty').style.display = 'none';
+  document.getElementById('panelContent').style.display = 'block';
+
+  document.getElementById('pTag').textContent    = d.tag;
+  document.getElementById('pName').textContent   = d.name;
+  document.getElementById('pPos').textContent    = d.pos;
+  document.getElementById('pSqm').textContent    = d.sqm;
+  document.getElementById('pRooms').textContent  = d.rooms;
+  document.getElementById('pBaths').textContent  = d.baths;
+  document.getElementById('pPrice').textContent  = d.price;
+  document.getElementById('pStatusTxt').textContent = d.statusTxt;
+
+  const statusEl = document.getElementById('pStatus');
+  statusEl.className = 'ph-status s-' + d.status;
+
+  document.getElementById('pFeats').innerHTML =
+    d.feats.map(f => `<div class="p-feat">${f}</div>`).join('');
+
+  const btn = document.getElementById('pCtaBtn');
+  if (d.status === 'sold') {
+    btn.textContent = 'Non disponibile'; btn.disabled = true;
+  } else if (d.status === 'reserved') {
+    btn.textContent = 'Lista d\'attesa'; btn.disabled = false;
+  } else {
+    btn.textContent = 'Richiedi informazioni'; btn.disabled = false;
+  }
+}
+
+function reqInfo() {
+  alert(`Appartamento ${current} — ${DATA[current].name}\n\nIn produzione: apre form precompilato o WhatsApp del venditore.`);
+}
+
+// Tastiera: 1-4 o A-D
+document.addEventListener('keydown', e => {
+  const map = {'1':'A','2':'B','3':'C','4':'D','a':'A','b':'B','c':'C','d':'D'};
+  if (map[e.key]) selectApt(map[e.key]);
+});
+</script>
+</body>
+</html>
