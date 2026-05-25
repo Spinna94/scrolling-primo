@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Residenza Aurora — Via Mazzini 24, Torino</title>
+  <meta name="description" content="Splendido appartamento di lusso nel cuore di Torino. 120m², 3 camere, terrazzo panoramico. Richiedi informazioni." />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #1a1a2e;
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ===== SCROLL ANIMATIONS ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-50px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(50px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      transition: background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(255,255,255,0.95);
+      border-bottom: 1px solid #e0e0e0;
+    }
+    nav.scrolled .nav-logo, nav.scrolled .nav-link { color: #1a1a2e; }
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-link {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: #f7971e; }
+    nav.scrolled .nav-link:hover { color: #e05a0a; }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(230,60,20,0.85) 0%, rgba(247,151,30,0.7) 40%, rgba(20,80,160,0.85) 100%),
+        url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1600&q=80') center/cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: #fff;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 2.5rem;
+      font-weight: 400;
+    }
+    .hero-price {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.25);
+    }
+    .hero-price span {
+      font-size: 0.55em;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+    .hero-stat {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 12px;
+      padding: 0.85rem 1.4rem;
+      color: #fff;
+      backdrop-filter: blur(8px);
+    }
+    .hero-stat-value { font-size: 1.6rem; font-weight: 800; display: block; }
+    .hero-stat-label { font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.08em; }
+    .hero-cta-group { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: linear-gradient(135deg, #f7971e, #e05a0a);
+      color: #fff;
+      padding: 0.9rem 2.2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(247,151,30,0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-block;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(247,151,30,0.55); }
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      padding: 0.9rem 2.2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.6);
+      transition: background 0.2s, border-color 0.2s;
+      display: inline-block;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .scroll-arrow {
+      width: 24px; height: 24px;
+      border-right: 2px solid rgba(255,255,255,0.7);
+      border-bottom: 2px solid rgba(255,255,255,0.7);
+      transform: rotate(45deg);
+      animation: bounce 1.6s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50% { transform: rotate(45deg) translateY(6px); }
+    }
+
+    /* ===== SECTION GENERIC ===== */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #f7971e;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .section-subtitle {
+      color: #555;
+      font-size: 1.05rem;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ===== HIGHLIGHTS ===== */
+    #highlights { background: #f8f4f0; }
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .highlight-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      border-top: 4px solid transparent;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .highlight-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+    .highlight-card:nth-child(1) { border-top-color: #f7971e; }
+    .highlight-card:nth-child(2) { border-top-color: #1458a0; }
+    .highlight-card:nth-child(3) { border-top-color: #27ae60; }
+    .highlight-card:nth-child(4) { border-top-color: #9b59b6; }
+    .highlight-card:nth-child(5) { border-top-color: #e74c3c; }
+    .highlight-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .highlight-value { font-size: 2rem; font-weight: 800; color: #1a1a2e; }
+    .highlight-label { font-size: 0.85rem; color: #777; margin-top: 0.3rem; }
+
+    /* ===== GALLERY ===== */
+    #galleria { background: #fff; }
+    .gallery-header { text-align: center; margin-bottom: 3rem; }
+    .gallery-header .section-subtitle { margin: 0 auto; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
+      gap: 1rem;
+    }
+    .gallery-item {
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .gallery-item:first-child {
+      grid-column: 1 / 3;
+      grid-row: 1 / 3;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      min-height: 200px;
+      transition: transform 0.4s ease;
+    }
+    .gallery-item:first-child img { min-height: 420px; }
+    .gallery-item:hover img { transform: scale(1.05); }
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+
+    /* ===== DESCRIZIONE ===== */
+    #descrizione {
+      background: linear-gradient(135deg, #1458a0 0%, #0a2a5e 100%);
+      color: #fff;
+    }
+    #descrizione .section-label { color: #f7971e; }
+    #descrizione .section-title { color: #fff; }
+    .descrizione-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+      margin-top: 3rem;
+    }
+    .descrizione-text { font-size: 1.05rem; line-height: 1.8; color: rgba(255,255,255,0.85); }
+    .descrizione-text p + p { margin-top: 1rem; }
+    .features-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; margin-top: 0; }
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.95rem;
+    }
+    .feature-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f7971e, #e05a0a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    /* ===== DETTAGLI ===== */
+    #dettagli { background: #f8f4f0; }
+    .dettagli-header { text-align: center; margin-bottom: 3rem; }
+    .dettagli-header .section-subtitle { margin: 0 auto; }
+    .dettagli-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .dettagli-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .dettagli-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f7971e;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.95rem;
+    }
+    .spec-row:last-child { border-bottom: none; }
+    .spec-key { color: #666; }
+    .spec-val { font-weight: 600; color: #1a1a2e; }
+
+    /* ===== POSIZIONE ===== */
+    #posizione { background: #fff; }
+    .posizione-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      margin-top: 3rem;
+    }
+    .map-container {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+      height: 380px;
+    }
+    .map-container iframe {
+      width: 100%; height: 100%;
+      border: none;
+      display: block;
+    }
+    .posizione-info h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1a1a2e; }
+    .posizione-info p { color: #555; line-height: 1.7; margin-bottom: 1.5rem; }
+    .poi-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .poi-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: #444;
+    }
+    .poi-badge {
+      background: linear-gradient(135deg, #1458a0, #2980b9);
+      color: #fff;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* ===== CONTATTO ===== */
+    #contatto {
+      background: linear-gradient(135deg, #f7971e 0%, #e05a0a 50%, #c0392b 100%);
+      color: #fff;
+    }
+    .contatto-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .contatto-intro .section-label { color: rgba(255,255,255,0.7); }
+    .contatto-intro .section-title { color: #fff; margin-bottom: 1rem; }
+    .contatto-intro p { color: rgba(255,255,255,0.85); line-height: 1.7; font-size: 1.05rem; margin-bottom: 2rem; }
+    .contact-detail {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.95rem;
+    }
+    .contact-detail-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .contact-form {
+      background: #fff;
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .form-row { margin-bottom: 1.2rem; }
+    .form-row label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 0.4rem;
+    }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      color: #1a1a2e;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      outline: none;
+      background: #fff;
+    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+      border-color: #f7971e;
+    }
+    .form-row textarea { resize: vertical; min-height: 100px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-submit {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f7971e, #e05a0a);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 0.5rem;
+    }
+    .form-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(247,151,30,0.4); }
+    .form-note { font-size: 0.8rem; color: #999; text-align: center; margin-top: 0.75rem; }
+
+    /* ===== SUCCESS MESSAGE ===== */
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+    .form-success.show { display: block; }
+    .form-success-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .form-success h3 { color: #27ae60; font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .form-success p { color: #555; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #0d0d1a;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      font-size: 0.85rem;
+    }
+    footer a { color: #f7971e; text-decoration: none; }
+
+    /* ===== LIGHTBOX ===== */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem; right: 2rem;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero-stats { gap: 1rem; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-item:first-child { grid-column: 1 / 3; grid-row: auto; }
+      .gallery-item:first-child img { min-height: 260px; }
+      .descrizione-grid,
+      .posizione-inner,
+      .contatto-inner { grid-template-columns: 1fr; gap: 2rem; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      section { padding: 3.5rem 1.25rem; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .gallery-item:first-child img { min-height: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a class="nav-logo" href="#">Residenza Aurora</a>
+    <div class="nav-links">
+      <a class="nav-link" href="#highlights">Caratteristiche</a>
+      <a class="nav-link" href="#galleria">Galleria</a>
+      <a class="nav-link" href="#posizione">Posizione</a>
+      <a class="nav-link" href="#contatto">Contatto</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-badge">Esclusiva — Torino Centro</div>
+    <h1 class="hero-title">Residenza Aurora</h1>
+    <p class="hero-subtitle">Via Mazzini 24 · Piano 5° · Torino (TO)</p>
+    <div class="hero-price">€ 520.000 <span>trattativa privata</span></div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-value">120</span>
+        <span class="hero-stat-label">m² utili</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">3</span>
+        <span class="hero-stat-label">camere</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">2</span>
+        <span class="hero-stat-label">bagni</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">35</span>
+        <span class="hero-stat-label">m² terrazzo</span>
+      </div>
+    </div>
+    <div class="hero-cta-group">
+      <a class="btn-primary" href="#contatto">Richiedi Informazioni</a>
+      <a class="btn-outline" href="#galleria">Vedi Galleria</a>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scopri di più</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- HIGHLIGHTS -->
+  <section id="highlights">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">In sintesi</div>
+        <h2 class="section-title">Tutto quello che cerchi</h2>
+        <p class="section-subtitle">Un appartamento pensato per chi vuole vivere nel centro di Torino senza rinunciare al comfort e alla luce.</p>
+      </div>
+      <div class="highlights-grid">
+        <div class="highlight-card reveal" style="transition-delay:0.1s">
+          <div class="highlight-icon">📐</div>
+          <div class="highlight-value">120 m²</div>
+          <div class="highlight-label">Superficie utile</div>
+        </div>
+        <div class="highlight-card reveal" style="transition-delay:0.2s">
+          <div class="highlight-icon">🛏</div>
+          <div class="highlight-value">3 camere</div>
+          <div class="highlight-label">Matrimoniale + 2 singole</div>
+        </div>
+        <div class="highlight-card reveal" style="transition-delay:0.3s">
+          <div class="highlight-icon">🌿</div>
+          <div class="highlight-value">35 m²</div>
+          <div class="highlight-label">Terrazzo panoramico</div>
+        </div>
+        <div class="highlight-card reveal" style="transition-delay:0.4s">
+          <div class="highlight-icon">🚗</div>
+          <div class="highlight-value">1 posto</div>
+          <div class="highlight-label">Box auto incluso</div>
+        </div>
+        <div class="highlight-card reveal" style="transition-delay:0.5s">
+          <div class="highlight-icon">✨</div>
+          <div class="highlight-value">2023</div>
+          <div class="highlight-label">Ristrutturato</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="galleria">
+    <div class="container">
+      <div class="gallery-header reveal">
+        <div class="section-label">Foto</div>
+        <h2 class="section-title">Galleria Fotografica</h2>
+        <p class="section-subtitle">Ogni angolo curato nei minimi dettagli. Clicca sulle foto per ingrandirle.</p>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item reveal" onclick="openLightbox('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=85')">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80" alt="Soggiorno principale" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <div class="gallery-item reveal" style="transition-delay:0.1s" onclick="openLightbox('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=85')">
+          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80" alt="Cucina moderna" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <div class="gallery-item reveal" style="transition-delay:0.2s" onclick="openLightbox('https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&q=85')">
+          <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=80" alt="Camera da letto" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <div class="gallery-item reveal" style="transition-delay:0.3s" onclick="openLightbox('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&q=85')">
+          <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=80" alt="Bagno in marmo" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <div class="gallery-item reveal" style="transition-delay:0.35s" onclick="openLightbox('https://images.unsplash.com/photo-1600607686527-6fb886090705?w=1200&q=85')">
+          <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=80" alt="Terrazzo" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="Foto ingrandita" />
+  </div>
+
+  <!-- DESCRIZIONE -->
+  <section id="descrizione">
+    <div class="container">
+      <div class="section-label reveal">Descrizione</div>
+      <h2 class="section-title reveal">Un appartamento da vivere,<br>non solo da abitare</h2>
+      <div class="descrizione-grid">
+        <div class="reveal-left">
+          <div class="descrizione-text">
+            <p>Situato al quinto piano di un palazzo d'epoca completamente ristrutturato nel 2023, Residenza Aurora offre 120 m² di spazi luminosi e ben distribuiti, con un terrazzo panoramico di 35 m² affacciato sui tetti di Torino.</p>
+            <p>L'appartamento è stato oggetto di una ristrutturazione completa con materiali di prima scelta: parquet in rovere, cucina su misura, bagni in marmo di Carrara, impianto domotico e infissi triplo vetro.</p>
+            <p>La classe energetica A garantisce consumi ridotti tutto l'anno, mentre il box auto incluso nel prezzo risolve uno dei problemi più sentiti nel centro città.</p>
+          </div>
+        </div>
+        <div class="reveal-right">
+          <ul class="features-list">
+            <li><span class="feature-dot">✓</span> Parquet in rovere massello in tutte le stanze</li>
+            <li><span class="feature-dot">✓</span> Cucina su misura con isola centrale</li>
+            <li><span class="feature-dot">✓</span> Bagno principale con doccia e vasca</li>
+            <li><span class="feature-dot">✓</span> Secondo bagno con doccia walk-in</li>
+            <li><span class="feature-dot">✓</span> Impianto domotico (luci, temperatura, tapparelle)</li>
+            <li><span class="feature-dot">✓</span> Riscaldamento autonomo a pavimento</li>
+            <li><span class="feature-dot">✓</span> Aria condizionata in tutti i locali</li>
+            <li><span class="feature-dot">✓</span> Cantina di 8 m² al piano seminterrato</li>
+            <li><span class="feature-dot">✓</span> Portineria H24 e videocitofono</li>
+            <li><span class="feature-dot">✓</span> Classe energetica A4</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DETTAGLI -->
+  <section id="dettagli">
+    <div class="container">
+      <div class="dettagli-header reveal">
+        <div class="section-label">Scheda Tecnica</div>
+        <h2 class="section-title">Tutti i dettagli</h2>
+        <p class="section-subtitle">Dati verificati e aggiornati. Planimetrie disponibili su richiesta.</p>
+      </div>
+      <div class="dettagli-grid">
+        <div class="dettagli-card reveal" style="transition-delay:0.1s">
+          <h3>🏠 Immobile</h3>
+          <div class="spec-row"><span class="spec-key">Superficie utile</span><span class="spec-val">120 m²</span></div>
+          <div class="spec-row"><span class="spec-key">Superficie terrazzo</span><span class="spec-val">35 m²</span></div>
+          <div class="spec-row"><span class="spec-key">Cantina</span><span class="spec-val">8 m²</span></div>
+          <div class="spec-row"><span class="spec-key">Piano</span><span class="spec-val">5° su 7</span></div>
+          <div class="spec-row"><span class="spec-key">Ascensore</span><span class="spec-val">Sì</span></div>
+          <div class="spec-row"><span class="spec-key">Anno costruzione</span><span class="spec-val">1930</span></div>
+          <div class="spec-row"><span class="spec-key">Anno ristrutturazione</span><span class="spec-val">2023</span></div>
+        </div>
+        <div class="dettagli-card reveal" style="transition-delay:0.2s">
+          <h3>📋 Classificazione</h3>
+          <div class="spec-row"><span class="spec-key">Categoria catastale</span><span class="spec-val">A/2</span></div>
+          <div class="spec-row"><span class="spec-key">Classe energetica</span><span class="spec-val">A4</span></div>
+          <div class="spec-row"><span class="spec-key">IPE</span><span class="spec-val">28 kWh/m²·anno</span></div>
+          <div class="spec-row"><span class="spec-key">Stato</span><span class="spec-val">Ottime condizioni</span></div>
+          <div class="spec-row"><span class="spec-key">Esposizione</span><span class="spec-val">Sud / Est</span></div>
+          <div class="spec-row"><span class="spec-key">Riscaldamento</span><span class="spec-val">Autonomo a pavimento</span></div>
+          <div class="spec-row"><span class="spec-key">Spese condominiali</span><span class="spec-val">€ 180/mese</span></div>
+        </div>
+        <div class="dettagli-card reveal" style="transition-delay:0.3s">
+          <h3>💰 Acquisto</h3>
+          <div class="spec-row"><span class="spec-key">Prezzo richiesto</span><span class="spec-val">€ 520.000</span></div>
+          <div class="spec-row"><span class="spec-key">Prezzo al m²</span><span class="spec-val">€ 4.333/m²</span></div>
+          <div class="spec-row"><span class="spec-key">Box auto</span><span class="spec-val">Incluso</span></div>
+          <div class="spec-row"><span class="spec-key">Disponibilità</span><span class="spec-val">Immediata</span></div>
+          <div class="spec-row"><span class="spec-key">Mutuo</span><span class="spec-val">Possibile consulenza</span></div>
+          <div class="spec-row"><span class="spec-key">Trattativa</span><span class="spec-val">Privata</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POSIZIONE -->
+  <section id="posizione">
+    <div class="container">
+      <div class="section-label reveal">Dove siamo</div>
+      <h2 class="section-title reveal">Posizione Strategica</h2>
+      <div class="posizione-inner">
+        <div class="map-container reveal-left">
+          <iframe
+            src="https://www.openstreetmap.org/export/embed.html?bbox=7.6650%2C45.0600%2C7.7000%2C45.0750&layer=mapnik&marker=45.0668%2C7.6826"
+            title="Mappa posizione immobile"
+            loading="lazy"
+            allowfullscreen>
+          </iframe>
+        </div>
+        <div class="posizione-info reveal-right">
+          <h3>Via Mazzini 24, Torino</h3>
+          <p>Nel cuore del centro storico di Torino, a pochi passi da Piazza Castello e Piazza San Carlo. Una posizione che unisce la vivacità del centro alla comodità dei servizi quotidiani.</p>
+          <ul class="poi-list">
+            <li><span class="poi-badge">2 min</span> Supermercato e farmacia</li>
+            <li><span class="poi-badge">4 min</span> Metro Stazione Porta Nuova</li>
+            <li><span class="poi-badge">5 min</span> Piazza San Carlo — shopping e ristorazione</li>
+            <li><span class="poi-badge">7 min</span> Piazza Castello e Musei Reali</li>
+            <li><span class="poi-badge">10 min</span> Parco del Valentino</li>
+            <li><span class="poi-badge">15 min</span> Stazione di Porta Nuova (a piedi)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATTO -->
+  <section id="contatto">
+    <div class="container">
+      <div class="contatto-inner">
+        <div class="contatto-intro reveal-left">
+          <div class="section-label">Contattaci</div>
+          <h2 class="section-title">Prenota una visita</h2>
+          <p>Compila il modulo e ti ricontatteremo entro 24 ore per fissare un appuntamento. Le visite sono disponibili tutti i giorni, anche nel weekend.</p>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📞</div>
+            <span>+39 011 123 4567</span>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">✉️</div>
+            <span>info@residenzaaurora.it</span>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">🕐</div>
+            <span>Lun–Dom · 9:00–20:00</span>
+          </div>
+        </div>
+        <div class="contact-form reveal-right">
+          <div id="form-main">
+            <div class="form-grid">
+              <div class="form-row">
+                <label for="nome">Nome *</label>
+                <input type="text" id="nome" placeholder="Mario" required />
+              </div>
+              <div class="form-row">
+                <label for="cognome">Cognome *</label>
+                <input type="text" id="cognome" placeholder="Rossi" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="email">Email *</label>
+              <input type="email" id="email" placeholder="mario.rossi@email.it" required />
+            </div>
+            <div class="form-row">
+              <label for="telefono">Telefono</label>
+              <input type="tel" id="telefono" placeholder="+39 333 123 4567" />
+            </div>
+            <div class="form-row">
+              <label for="interesse">Interesse</label>
+              <select id="interesse">
+                <option value="">Seleziona...</option>
+                <option value="visita">Prenotare una visita</option>
+                <option value="info">Informazioni generali</option>
+                <option value="mutuo">Consulenza mutuo</option>
+                <option value="trattativa">Avviare trattativa</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="messaggio">Messaggio</label>
+              <textarea id="messaggio" placeholder="Sono interessato a fissare una visita questo weekend..."></textarea>
+            </div>
+            <button class="form-submit" onclick="submitForm()">Invia Richiesta →</button>
+            <p class="form-note">I tuoi dati sono trattati nel rispetto del GDPR. Nessuno spam.</p>
+          </div>
+          <div class="form-success" id="form-success">
+            <div class="form-success-icon">✅</div>
+            <h3>Richiesta inviata!</h3>
+            <p>Ti ricontatteremo entro 24 ore all'indirizzo email fornito.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Residenza Aurora — Via Mazzini 24, Torino &nbsp;·&nbsp; <a href="mailto:info@residenzaaurora.it">info@residenzaaurora.it</a></p>
+    <p style="margin-top:0.5rem; opacity:0.5">Questo sito è una demo. Realizzato con HTML/CSS/JS puro.</p>
+  </footer>
+
+  <script>
+    // --- NAVBAR SCROLL ---
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 80);
+    });
+
+    // --- INTERSECTION OBSERVER (scroll animations) ---
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+      observer.observe(el);
+    });
+
+    // --- LIGHTBOX ---
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // --- FORM SUBMIT (demo) ---
+    function submitForm() {
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      if (!nome || !email) {
+        alert('Per favore compila almeno nome ed email.');
+        return;
+      }
+      document.getElementById('form-main').style.display = 'none';
+      document.getElementById('form-success').classList.add('show');
+    }
+  </script>
+</body>
+</html>
