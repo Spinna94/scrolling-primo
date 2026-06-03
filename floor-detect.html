@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Floor Line Detector</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #111; color: #eee; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; }
+    h1 { padding: 0.75rem 1rem; font-size: 0.9rem; font-weight: 400; color: #888; letter-spacing: 0.12em; text-transform: uppercase; border-bottom: 1px solid #222; }
+    .layout { display: grid; grid-template-columns: 1fr 300px; height: calc(100vh - 40px); }
+    .canvas-col { overflow: auto; background: #000; position: relative; }
+    .sidebar { border-left: 1px solid #222; display: flex; flex-direction: column; overflow: hidden; }
+    canvas { display: block; }
+
+    /* Controls */
+    .section { padding: 0.75rem 1rem; border-bottom: 1px solid #1e1e1e; }
+    .section-title { font-size: 0.7rem; color: #666; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; gap: 0.5rem; }
+    .row label { font-size: 0.75rem; color: #999; flex-shrink: 0; }
+    input[type=range] { flex: 1; accent-color: #c8a97e; }
+    .val { font-size: 0.75rem; color: #c8a97e; width: 28px; text-align: right; flex-shrink: 0; }
+    .row-btn { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    button { background: #222; border: 1px solid #333; color: #ddd; padding: 0.4rem 0.7rem; cursor: pointer; font-size: 0.72rem; letter-spacing: 0.08em; border-radius: 3px; transition: background 0.15s; }
+    button:hover { background: #2a2a2a; }
+    button.accent { background: #c8a97e; color: #111; border-color: #c8a97e; font-weight: 500; }
+    button.accent:hover { background: #d4b88e; }
+    button.danger { border-color: #c44; color: #f88; }
+
+    /* Profile canvas */
+    #profWrap { padding: 0.5rem 1rem; border-bottom: 1px solid #1e1e1e; }
+    #profileCanvas { width: 100%; height: 80px; border: 1px solid #222; border-radius: 2px; display: block; }
+
+    /* Output */
+    #output { flex: 1; overflow-y: auto; padding: 0.75rem 1rem; font-size: 0.7rem; line-height: 1.6; color: #6f6; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+
+    /* Instructions */
+    .tip { font-size: 0.68rem; color: #555; line-height: 1.5; }
+    .tip b { color: #888; }
+
+    /* Line list */
+    #lineList { max-height: 130px; overflow-y: auto; }
+    .line-item { display: flex; align-items: center; justify-content: space-between; padding: 0.2rem 0; border-bottom: 1px solid #1a1a1a; }
+    .line-item span { font-size: 0.72rem; }
+    .line-item .li-y { color: #c8a97e; font-family: monospace; }
+    .line-item .li-role { color: #666; font-size: 0.65rem; }
+    .li-del { background: none; border: none; color: #555; cursor: pointer; padding: 0 4px; font-size: 0.8rem; }
+    .li-del:hover { color: #f88; background: none; }
+
+    @media (max-width: 700px) {
+      .layout { grid-template-columns: 1fr; grid-template-rows: 60vh 1fr; }
+      .sidebar { border-left: none; border-top: 1px solid #222; }
+    }
+  </style>
+</head>
+<body>
+<h1>Floor Line Detector &nbsp;·&nbsp; frame_0060.jpg</h1>
+<div class="layout">
+  <div class="canvas-col">
+    <canvas id="imgCanvas" width="1280" height="720"></canvas>
+  </div>
+  <div class="sidebar">
+
+    <div class="section">
+      <div class="section-title">Rilevamento automatico</div>
+      <div class="row">
+        <label>Soglia bordi</label>
+        <input type="range" id="threshold" min="2" max="40" value="10" oninput="updateVal(this,'tVal')"/>
+        <span class="val" id="tVal">10</span>
+      </div>
+      <div class="row">
+        <label>Dist. min (px)</label>
+        <input type="range" id="minDist" min="20" max="90" value="48" oninput="updateVal(this,'dVal')"/>
+        <span class="val" id="dVal">48</span>
+      </div>
+      <div class="row">
+        <label>N° linee</label>
+        <input type="range" id="nLines" min="4" max="14" value="10" oninput="updateVal(this,'nVal')"/>
+        <span class="val" id="nVal">10</span>
+      </div>
+      <div class="row">
+        <label>Slope (px)</label>
+        <input type="range" id="slope" min="0" max="20" value="7" oninput="updateVal(this,'sVal')"/>
+        <span class="val" id="sVal">7</span>
+      </div>
+      <div class="row-btn" style="margin-top:0.5rem">
+        <button onclick="detect()" class="accent">⟳ Rileva</button>
+        <button onclick="toggleSmooth()">Smooth: <span id="smoothLbl">ON</span></button>
+        <button onclick="clearLines()" class="danger">✕ Reset</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Profilo gradiente</div>
+      <div id="profWrap" style="padding:0">
+        <canvas id="profileCanvas" width="260" height="80"></canvas>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Linee (<span id="lineCount">0</span>) &nbsp;<span class="tip">Clic sul frame = aggiungi/rimuovi</span></div>
+      <div id="lineList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Zona edificio X</div>
+      <div class="row">
+        <label>X sinistra</label>
+        <input type="range" id="bx1" min="300" max="700" value="480" oninput="updateVal(this,'bx1Val');redraw()"/>
+        <span class="val" id="bx1Val">480</span>
+      </div>
+      <div class="row">
+        <label>X destra</label>
+        <input type="range" id="bx2" min="800" max="1280" value="1070" oninput="updateVal(this,'bx2Val');redraw()"/>
+        <span class="val" id="bx2Val">1070</span>
+      </div>
+    </div>
+
+    <div class="section" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+      <div class="section-title" style="margin-bottom:0.4rem">
+        Output SVG
+        <button onclick="copyOutput()" style="float:right;margin-top:-2px">📋 Copia</button>
+      </div>
+      <div id="output">Premi "Rileva"...</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const IC  = document.getElementById('imgCanvas');
+const ctx = IC.getContext('2d');
+const PC  = document.getElementById('profileCanvas');
+const pctx = PC.getContext('2d');
+
+let imgLoaded = false;
+let imgData   = null;
+let lines     = [];   // [{y, type}]  type: 'sep'|'top'|'bottom'
+let smoothOn  = true;
+let theImg    = new Image();
+
+theImg.onload = () => {
+  imgLoaded = true;
+  ctx.drawImage(theImg, 0, 0, 1280, 720);
+  imgData = ctx.getImageData(0, 0, 1280, 720);
+  detect();
+};
+theImg.src = 'assets/frames/frame_0060.jpg';
+
+function updateVal(el, id) { document.getElementById(id).textContent = el.value; }
+function toggleSmooth() {
+  smoothOn = !smoothOn;
+  document.getElementById('smoothLbl').textContent = smoothOn ? 'ON' : 'OFF';
+}
+function clearLines() { lines = []; redraw(); updateOutput(); updateLineList(); }
+
+/* ---- EDGE PROFILE ---- */
+function gradientProfile() {
+  const bx1 = +document.getElementById('bx1').value;
+  const bx2 = +document.getElementById('bx2').value;
+  const data = imgData.data;
+  const W = 1280;
+  const prof = new Float32Array(720);
+
+  for (let y = 2; y < 718; y++) {
+    let sum = 0;
+    for (let x = bx1; x < bx2; x++) {
+      const i0 = ((y-2)*W + x)*4;
+      const i1 = ((y+2)*W + x)*4;
+      const g0 = data[i0]*0.299 + data[i0+1]*0.587 + data[i0+2]*0.114;
+      const g1 = data[i1]*0.299 + data[i1+1]*0.587 + data[i1+2]*0.114;
+      sum += Math.abs(g1 - g0);
+    }
+    prof[y] = sum / (bx2 - bx1);
+  }
+
+  if (smoothOn) {
+    const s = new Float32Array(720);
+    const K = 3;
+    for (let y = K; y < 720-K; y++) {
+      let t = 0;
+      for (let k = -K; k <= K; k++) t += prof[y+k];
+      s[y] = t / (2*K+1);
+    }
+    return s;
+  }
+  return prof;
+}
+
+function findPeaks(prof) {
+  const threshold = +document.getElementById('threshold').value;
+  const minDist   = +document.getElementById('minDist').value;
+  const nLines    = +document.getElementById('nLines').value;
+
+  // Find local maxima above threshold
+  const cands = [];
+  for (let y = 3; y < 717; y++) {
+    if (prof[y] < threshold) continue;
+    let isMax = true;
+    for (let k = 1; k <= 5; k++) {
+      if (prof[y-k] > prof[y] || prof[y+k] > prof[y]) { isMax = false; break; }
+    }
+    if (isMax) cands.push({y, s: prof[y]});
+  }
+
+  // Sort by strength, apply minDist greedily
+  cands.sort((a,b) => b.s - a.s);
+  const kept = [];
+  for (const c of cands) {
+    if (kept.every(p => Math.abs(p.y - c.y) >= minDist)) kept.push(c);
+    if (kept.length >= nLines) break;
+  }
+
+  kept.sort((a,b) => a.y - b.y);
+  return kept;
+}
+
+/* ---- DETECT ---- */
+function detect() {
+  if (!imgLoaded) return;
+  const prof = gradientProfile();
+  const peaks = findPeaks(prof);
+
+  lines = peaks.map((p, i) => ({
+    y: p.y,
+    s: p.s,
+    type: i === 0 ? 'top' : i === peaks.length-1 ? 'bottom' : 'sep'
+  }));
+
+  drawProfile(prof, peaks);
+  redraw();
+  updateOutput();
+  updateLineList();
+}
+
+/* ---- DRAW ---- */
+function redraw() {
+  if (!imgLoaded) return;
+  ctx.drawImage(theImg, 0, 0, 1280, 720);
+
+  const bx1   = +document.getElementById('bx1').value;
+  const bx2   = +document.getElementById('bx2').value;
+  const slope = +document.getElementById('slope').value;
+
+  // Draw building x-bounds guide (faint)
+  ctx.strokeStyle = 'rgba(100,180,255,0.25)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(bx1,0); ctx.lineTo(bx1,720); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bx2,0); ctx.lineTo(bx2,720); ctx.stroke();
+  ctx.setLineDash([]);
+
+  lines.forEach((l, i) => {
+    const isTopBot = (i === 0 || i === lines.length-1);
+    ctx.beginPath();
+    ctx.moveTo(bx1, l.y);
+    ctx.lineTo(bx2, l.y + slope);
+    ctx.strokeStyle = isTopBot ? 'rgba(255,80,80,0.85)' : 'rgba(255,215,0,0.9)';
+    ctx.lineWidth = isTopBot ? 1.5 : 1.5;
+    ctx.stroke();
+
+    // y label on right
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.fillRect(bx2 + 4, l.y - 9, 64, 16);
+    ctx.fillStyle = isTopBot ? '#f88' : '#fd0';
+    ctx.font = '11px monospace';
+    ctx.fillText(`y=${l.y}`, bx2 + 7, l.y + 3);
+  });
+
+  document.getElementById('lineCount').textContent = lines.length;
+}
+
+function drawProfile(prof, peaks) {
+  const W = PC.width, H = PC.height;
+  pctx.fillStyle = '#0d0d0d';
+  pctx.fillRect(0, 0, W, H);
+
+  const max = Math.max(...prof, 1);
+  pctx.beginPath();
+  for (let y = 0; y < 720; y++) {
+    const x = y * W / 720;
+    const h = (prof[y] / max) * (H - 10);
+    if (y === 0) pctx.moveTo(x, H - h); else pctx.lineTo(x, H - h);
+  }
+  pctx.strokeStyle = '#4af';
+  pctx.lineWidth = 1;
+  pctx.stroke();
+
+  peaks.forEach(p => {
+    const x = p.y * W / 720;
+    pctx.beginPath();
+    pctx.moveTo(x, 0); pctx.lineTo(x, H);
+    pctx.strokeStyle = 'rgba(255,215,0,0.55)';
+    pctx.lineWidth = 1;
+    pctx.stroke();
+  });
+
+  pctx.fillStyle = '#444';
+  pctx.font = '9px monospace';
+  pctx.fillText('▶ gradiente verticale (zona edificio)', 4, 10);
+}
+
+/* ---- CLICK TO ADD/REMOVE ---- */
+IC.addEventListener('click', e => {
+  const r = IC.getBoundingClientRect();
+  const scaleY = 720 / r.height;
+  const y = Math.round((e.clientY - r.top) * scaleY);
+
+  const nearIdx = lines.findIndex(l => Math.abs(l.y - y) < 10);
+  if (nearIdx >= 0) {
+    lines.splice(nearIdx, 1);
+  } else {
+    lines.push({y, s: 0, type: 'sep'});
+    lines.sort((a,b) => a.y - b.y);
+    // Re-tag top/bottom
+    if (lines.length > 0) lines[0].type = 'top';
+    if (lines.length > 1) lines[lines.length-1].type = 'bottom';
+    for (let i = 1; i < lines.length-1; i++) lines[i].type = 'sep';
+  }
+
+  redraw();
+  updateOutput();
+  updateLineList();
+});
+
+/* ---- LINE LIST ---- */
+function updateLineList() {
+  const names = ['Top','Sep 1','Sep 2','Sep 3','Sep 4','Sep 5','Sep 6','Sep 7','Sep 8','Sep 9','Bot'];
+  const el = document.getElementById('lineList');
+  el.innerHTML = lines.map((l, i) => `
+    <div class="line-item">
+      <span class="li-role">${names[i] ?? 'L'+i}</span>
+      <span class="li-y">y=${l.y}</span>
+      <button class="li-del" onclick="removeLine(${i})">✕</button>
+    </div>`).join('');
+  document.getElementById('lineCount').textContent = lines.length;
+}
+function removeLine(i) { lines.splice(i,1); redraw(); updateOutput(); updateLineList(); }
+
+/* ---- OUTPUT ---- */
+function updateOutput() {
+  const slope = +document.getElementById('slope').value;
+  const BX1   = +document.getElementById('bx1').value;
+  const BX2   = +document.getElementById('bx2').value;
+
+  if (lines.length < 3) {
+    document.getElementById('output').textContent = 'Servono almeno 3 linee (top + seps + bottom).';
+    return;
+  }
+
+  const seps   = lines.slice(1, -1);
+  const top    = lines[0];
+  const bottom = lines[lines.length-1];
+
+  const zoneNames = ['Rooftop','Piano 8°','Piano 7°','Piano 6°','Piano 5°','Piano 4°','Piano 3°','Piano 2°','Piano 1°','Piano 0°'];
+  const bounds = [top, ...seps, bottom];
+
+  let out = `<!-- === FLOOR SEPARATORS (calibrated) ===\n`;
+  out += `     Building x=${BX1}..${BX2}, slope=+${slope}px\n`;
+  out += `     Sep y (left): ${seps.map(s=>s.y).join('/')} -->\n\n`;
+
+  out += `<!-- f-sep lines -->\n`;
+  seps.forEach(s => {
+    out += `<line class="f-sep" x1="${BX1}" y1="${s.y}" x2="${BX2}" y2="${s.y+slope}"/>\n`;
+  });
+
+  out += `\n<!-- floor zone polygons -->\n`;
+  for (let i = 0; i < bounds.length-1; i++) {
+    const yTL = bounds[i].y, yBL = bounds[i+1].y;
+    const yTR = yTL+slope,  yBR = yBL+slope;
+    const mid = Math.round((yTL+yBL)/2);
+    const name = zoneNames[i] || `Zone ${i}`;
+    out += `\n<!-- ${name}: y ${yTL}→${yBL}, mid=${mid} -->\n`;
+    out += `<polygon class="floor-hit" points="${BX1},${yTL} ${BX2},${yTR} ${BX2},${yBR} ${BX1},${yBL}"/>\n`;
+    out += `<line class="f-tick" x1="232" y1="${mid}" x2="${BX1}" y2="${mid}"/>\n`;
+    out += `<rect class="f-label-bg" x="48" y="${mid-12}" width="178" height="30" rx="4"/>\n`;
+    out += `<text class="f-label" x="216" y="${mid+1}" text-anchor="end">${name}</text>\n`;
+  }
+
+  document.getElementById('output').textContent = out;
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('output').textContent)
+    .then(() => { const b = event.target; b.textContent='✓ Copiato!'; setTimeout(()=>b.textContent='📋 Copia',1500); });
+}
+</script>
+</body>
+</html>
