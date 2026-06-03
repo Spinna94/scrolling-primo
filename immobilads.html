@@ -483,20 +483,20 @@
       -->
       <svg class="floors-svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
 
-        <!-- Separator lines — edge-detected via floor-detect.html, slope +7px L→R -->
+        <!-- Separator lines — edge-detected via floor-detect.html, slope +20px L→R -->
         <!-- Sep y (left): 126/193/260/325/391/458/538/588 — building 61→662 -->
-        <line class="f-sep" x1="480" y1="126" x2="1070" y2="133"/>
-        <line class="f-sep" x1="480" y1="193" x2="1070" y2="200"/>
-        <line class="f-sep" x1="480" y1="260" x2="1070" y2="267"/>
-        <line class="f-sep" x1="480" y1="325" x2="1070" y2="332"/>
-        <line class="f-sep" x1="480" y1="391" x2="1070" y2="398"/>
-        <line class="f-sep" x1="480" y1="458" x2="1070" y2="465"/>
-        <line class="f-sep" x1="480" y1="538" x2="1070" y2="545"/>
-        <line class="f-sep" x1="480" y1="588" x2="1070" y2="595"/>
+        <line class="f-sep" x1="480" y1="126" x2="1070" y2="146"/>
+        <line class="f-sep" x1="480" y1="193" x2="1070" y2="213"/>
+        <line class="f-sep" x1="480" y1="260" x2="1070" y2="280"/>
+        <line class="f-sep" x1="480" y1="325" x2="1070" y2="345"/>
+        <line class="f-sep" x1="480" y1="391" x2="1070" y2="411"/>
+        <line class="f-sep" x1="480" y1="458" x2="1070" y2="478"/>
+        <line class="f-sep" x1="480" y1="538" x2="1070" y2="558"/>
+        <line class="f-sep" x1="480" y1="588" x2="1070" y2="608"/>
 
         <!-- Rooftop: y 61→126 -->
         <g class="floor-zone" id="fz-roof" onclick="floorClick('Rooftop')">
-          <polygon class="floor-hit" points="480,61 1070,68 1070,133 480,126"/>
+          <polygon class="floor-hit" points="480,61 1070,81 1070,146 480,126"/>
           <line class="f-tick" x1="232" y1="94" x2="480" y2="94"/>
           <rect class="f-label-bg" x="48" y="82" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="95" text-anchor="end">Rooftop</text>
@@ -505,7 +505,7 @@
 
         <!-- Piano 8°: y 126→193 -->
         <g class="floor-zone" id="fz-8" onclick="floorClick(8)">
-          <polygon class="floor-hit" points="480,126 1070,133 1070,200 480,193"/>
+          <polygon class="floor-hit" points="480,126 1070,146 1070,213 480,193"/>
           <line class="f-tick" x1="232" y1="160" x2="480" y2="160"/>
           <rect class="f-label-bg" x="48" y="148" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="161" text-anchor="end">Piano 8°</text>
@@ -514,7 +514,7 @@
 
         <!-- Piano 7°: y 193→260 -->
         <g class="floor-zone" id="fz-7" onclick="floorClick(7)">
-          <polygon class="floor-hit" points="480,193 1070,200 1070,267 480,260"/>
+          <polygon class="floor-hit" points="480,193 1070,213 1070,280 480,260"/>
           <line class="f-tick" x1="232" y1="227" x2="480" y2="227"/>
           <rect class="f-label-bg" x="48" y="215" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="228" text-anchor="end">Piano 7°</text>
@@ -523,7 +523,7 @@
 
         <!-- Piano 6°: y 260→325 -->
         <g class="floor-zone" id="fz-6" onclick="floorClick(6)">
-          <polygon class="floor-hit" points="480,260 1070,267 1070,332 480,325"/>
+          <polygon class="floor-hit" points="480,260 1070,280 1070,345 480,325"/>
           <line class="f-tick" x1="232" y1="293" x2="480" y2="293"/>
           <rect class="f-label-bg" x="48" y="281" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="294" text-anchor="end">Piano 6°</text>
@@ -532,7 +532,7 @@
 
         <!-- Piano 5°: y 325→391 -->
         <g class="floor-zone" id="fz-5" onclick="floorClick(5)">
-          <polygon class="floor-hit" points="480,325 1070,332 1070,398 480,391"/>
+          <polygon class="floor-hit" points="480,325 1070,345 1070,411 480,391"/>
           <line class="f-tick" x1="232" y1="358" x2="480" y2="358"/>
           <rect class="f-label-bg" x="48" y="346" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="359" text-anchor="end">Piano 5°</text>
@@ -541,7 +541,7 @@
 
         <!-- Piano 4°: y 391→458 -->
         <g class="floor-zone" id="fz-4" onclick="floorClick(4)">
-          <polygon class="floor-hit" points="480,391 1070,398 1070,465 480,458"/>
+          <polygon class="floor-hit" points="480,391 1070,411 1070,478 480,458"/>
           <line class="f-tick" x1="232" y1="425" x2="480" y2="425"/>
           <rect class="f-label-bg" x="48" y="413" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="426" text-anchor="end">Piano 4°</text>
@@ -550,8 +550,8 @@
 
         <!-- Piano 3° — PIANTINA: y 458→538 -->
         <g class="floor-zone has-plan" id="fz-3" onclick="location.href='piantina.html'">
-          <polygon class="floor-hit" points="480,458 1070,465 1070,545 480,538"/>
-          <polygon class="f-dash" points="481,459 1069,466 1069,544 481,537"/>
+          <polygon class="floor-hit" points="480,458 1070,478 1070,558 480,538"/>
+          <polygon class="f-dash" points="481,459 1069,479 1069,557 481,537"/>
           <line class="f-tick" x1="200" y1="498" x2="480" y2="498"/>
           <rect class="f-label-bg" x="18" y="486" width="214" height="30" rx="4"/>
           <text class="f-label" x="222" y="499" text-anchor="end">Piano 3°</text>
@@ -560,7 +560,7 @@
 
         <!-- Piano 2°: y 538→588 -->
         <g class="floor-zone" id="fz-2" onclick="floorClick(2)">
-          <polygon class="floor-hit" points="480,538 1070,545 1070,595 480,588"/>
+          <polygon class="floor-hit" points="480,538 1070,558 1070,608 480,588"/>
           <line class="f-tick" x1="232" y1="563" x2="480" y2="563"/>
           <rect class="f-label-bg" x="48" y="551" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="564" text-anchor="end">Piano 2°</text>
@@ -569,7 +569,7 @@
 
         <!-- Piano 1°: y 588→662 -->
         <g class="floor-zone" id="fz-1" onclick="floorClick(1)">
-          <polygon class="floor-hit" points="480,588 1070,595 1070,669 480,662"/>
+          <polygon class="floor-hit" points="480,588 1070,608 1070,682 480,662"/>
           <line class="f-tick" x1="232" y1="625" x2="480" y2="625"/>
           <rect class="f-label-bg" x="48" y="613" width="178" height="30" rx="4"/>
           <text class="f-label" x="216" y="626" text-anchor="end">Piano 1°</text>
