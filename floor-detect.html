@@ -3,387 +3,492 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Floor Line Detector</title>
+  <title>Floor Builder — 3 punti per piano</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #111; color: #eee; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; }
-    h1 { padding: 0.75rem 1rem; font-size: 0.9rem; font-weight: 400; color: #888; letter-spacing: 0.12em; text-transform: uppercase; border-bottom: 1px solid #222; }
-    .layout { display: grid; grid-template-columns: 1fr 300px; height: calc(100vh - 40px); }
-    .canvas-col { overflow: auto; background: #000; position: relative; }
-    .sidebar { border-left: 1px solid #222; display: flex; flex-direction: column; overflow: hidden; }
-    canvas { display: block; }
+    body { background: #0d0d0d; color: #eee; font-family: system-ui, sans-serif; font-size: 13px; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    /* Controls */
-    .section { padding: 0.75rem 1rem; border-bottom: 1px solid #1e1e1e; }
-    .section-title { font-size: 0.7rem; color: #666; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.6rem; }
-    .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; gap: 0.5rem; }
-    .row label { font-size: 0.75rem; color: #999; flex-shrink: 0; }
-    input[type=range] { flex: 1; accent-color: #c8a97e; }
-    .val { font-size: 0.75rem; color: #c8a97e; width: 28px; text-align: right; flex-shrink: 0; }
-    .row-btn { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    button { background: #222; border: 1px solid #333; color: #ddd; padding: 0.4rem 0.7rem; cursor: pointer; font-size: 0.72rem; letter-spacing: 0.08em; border-radius: 3px; transition: background 0.15s; }
-    button:hover { background: #2a2a2a; }
-    button.accent { background: #c8a97e; color: #111; border-color: #c8a97e; font-weight: 500; }
-    button.accent:hover { background: #d4b88e; }
-    button.danger { border-color: #c44; color: #f88; }
+    /* TOP BAR */
+    #topbar {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.5rem 1rem;
+      background: #161616; border-bottom: 1px solid #222;
+    }
+    #status {
+      flex: 1;
+      font-size: 0.8rem;
+    }
+    #status .step-label { color: #c8a97e; font-weight: 600; }
+    #status .step-sub   { color: #666; margin-left: 0.4rem; }
+    .dots { display: flex; gap: 4px; align-items: center; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #555; }
+    .dot.done  { background: #c8a97e; border-color: #c8a97e; }
+    .dot.active{ background: transparent; border-color: #fff; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* Profile canvas */
-    #profWrap { padding: 0.5rem 1rem; border-bottom: 1px solid #1e1e1e; }
-    #profileCanvas { width: 100%; height: 80px; border: 1px solid #222; border-radius: 2px; display: block; }
+    button { background: #222; border: 1px solid #333; color: #ccc; padding: 0.35rem 0.75rem; border-radius: 3px; cursor: pointer; font-size: 0.75rem; transition: background 0.15s; white-space: nowrap; }
+    button:hover { background: #2c2c2c; }
+    button.primary { background: #c8a97e; color: #111; border-color: #c8a97e; font-weight: 600; }
+    button.primary:hover { background: #d4b88e; }
+    button:disabled { opacity: 0.35; cursor: default; }
+
+    /* MAIN AREA */
+    #main { flex: 1; display: flex; min-height: 0; }
+
+    /* CANVAS */
+    #canvasWrap { flex: 1; position: relative; overflow: hidden; background: #000; cursor: crosshair; }
+    #canvasWrap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    /* SIDEBAR */
+    #sidebar { width: 260px; flex-shrink: 0; border-left: 1px solid #222; display: flex; flex-direction: column; overflow: hidden; }
+
+    .panel { padding: 0.75rem; border-bottom: 1px solid #1a1a1a; }
+    .panel-title { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: #555; margin-bottom: 0.5rem; }
+
+    /* Boundary list */
+    #bList { overflow-y: auto; flex: 1; }
+    .b-item { display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-bottom: 1px solid #151515; }
+    .b-item.active { background: #1a1609; }
+    .b-item.pending { opacity: 0.4; }
+    .b-num { font-size: 0.65rem; color: #555; width: 16px; flex-shrink: 0; }
+    .b-name { flex: 1; font-size: 0.72rem; color: #bbb; }
+    .b-item.done .b-name { color: #888; }
+    .b-item.active .b-name { color: #c8a97e; }
+    .b-pts { font-size: 0.65rem; color: #555; font-family: monospace; }
+    .b-item.done .b-pts { color: #4a4; }
+    .b-del { background: none; border: none; color: #444; cursor: pointer; padding: 0 3px; font-size: 0.8rem; }
+    .b-del:hover { color: #f66; background: none; }
 
     /* Output */
-    #output { flex: 1; overflow-y: auto; padding: 0.75rem 1rem; font-size: 0.7rem; line-height: 1.6; color: #6f6; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
-
-    /* Instructions */
-    .tip { font-size: 0.68rem; color: #555; line-height: 1.5; }
-    .tip b { color: #888; }
-
-    /* Line list */
-    #lineList { max-height: 130px; overflow-y: auto; }
-    .line-item { display: flex; align-items: center; justify-content: space-between; padding: 0.2rem 0; border-bottom: 1px solid #1a1a1a; }
-    .line-item span { font-size: 0.72rem; }
-    .line-item .li-y { color: #c8a97e; font-family: monospace; }
-    .line-item .li-role { color: #666; font-size: 0.65rem; }
-    .li-del { background: none; border: none; color: #555; cursor: pointer; padding: 0 4px; font-size: 0.8rem; }
-    .li-del:hover { color: #f88; background: none; }
+    #outputWrap { flex-shrink: 0; border-top: 1px solid #222; display: flex; flex-direction: column; max-height: 200px; }
+    #outputHeader { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0.75rem; background: #161616; }
+    #outputHeader span { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: #555; }
+    #output { flex: 1; overflow-y: auto; padding: 0.5rem 0.75rem; font-family: monospace; font-size: 0.65rem; line-height: 1.6; color: #5c5; white-space: pre-wrap; word-break: break-all; background: #0a0a0a; }
 
     @media (max-width: 700px) {
-      .layout { grid-template-columns: 1fr; grid-template-rows: 60vh 1fr; }
-      .sidebar { border-left: none; border-top: 1px solid #222; }
+      #main { flex-direction: column; }
+      #sidebar { width: 100%; border-left: none; border-top: 1px solid #222; max-height: 200px; }
     }
   </style>
 </head>
 <body>
-<h1>Floor Line Detector &nbsp;·&nbsp; frame_0060.jpg</h1>
-<div class="layout">
-  <div class="canvas-col">
-    <canvas id="imgCanvas" width="1280" height="720"></canvas>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div id="status">
+    <span class="step-label" id="stepLabel">Boundary 1 di 10</span>
+    <span class="step-sub"  id="stepSub">Top edificio</span>
   </div>
-  <div class="sidebar">
+  <div class="dots" id="dotRow">
+    <div class="dot active" id="d0"></div>
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+  </div>
+  <button onclick="undoPoint()" id="btnUndo" disabled>↩ Punto</button>
+  <button onclick="undoBoundary()" id="btnUndoBnd" disabled>↩ Linea</button>
+  <button onclick="copyOutput()" class="primary" id="btnCopy" disabled>📋 Copia SVG</button>
+</div>
 
-    <div class="section">
-      <div class="section-title">Rilevamento automatico</div>
-      <div class="row">
-        <label>Soglia bordi</label>
-        <input type="range" id="threshold" min="2" max="40" value="10" oninput="updateVal(this,'tVal')"/>
-        <span class="val" id="tVal">10</span>
-      </div>
-      <div class="row">
-        <label>Dist. min (px)</label>
-        <input type="range" id="minDist" min="20" max="90" value="48" oninput="updateVal(this,'dVal')"/>
-        <span class="val" id="dVal">48</span>
-      </div>
-      <div class="row">
-        <label>N° linee</label>
-        <input type="range" id="nLines" min="4" max="14" value="10" oninput="updateVal(this,'nVal')"/>
-        <span class="val" id="nVal">10</span>
-      </div>
-      <div class="row">
-        <label>Slope (px)</label>
-        <input type="range" id="slope" min="0" max="20" value="7" oninput="updateVal(this,'sVal')"/>
-        <span class="val" id="sVal">7</span>
-      </div>
-      <div class="row-btn" style="margin-top:0.5rem">
-        <button onclick="detect()" class="accent">⟳ Rileva</button>
-        <button onclick="toggleSmooth()">Smooth: <span id="smoothLbl">ON</span></button>
-        <button onclick="clearLines()" class="danger">✕ Reset</button>
-      </div>
+<!-- MAIN -->
+<div id="main">
+  <div id="canvasWrap">
+    <svg id="svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+      <image id="bgImg" href="assets/frames/frame_0060.jpg" x="0" y="0" width="1280" height="720"/>
+
+      <!-- Completed boundaries -->
+      <g id="gCompleted"></g>
+
+      <!-- Current boundary in progress -->
+      <g id="gCurrent">
+        <polyline id="curLine" points="" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-dasharray="5,3"/>
+        <line id="curGuide" x1="0" y1="0" x2="0" y2="0" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- dots for placed points -->
+        <circle id="cp0" r="4" fill="#c8a97e" stroke="#fff" stroke-width="1" visibility="hidden"/>
+        <circle id="cp1" r="4" fill="#c8a97e" stroke="#fff" stroke-width="1" visibility="hidden"/>
+        <circle id="cp2" r="4" fill="#c8a97e" stroke="#fff" stroke-width="1" visibility="hidden"/>
+      </g>
+
+      <!-- Crosshair cursor -->
+      <g id="gCursor" pointer-events="none">
+        <line id="chH" x1="0" y1="0" x2="0" y2="0" stroke="rgba(255,255,255,0.25)" stroke-width="0.7"/>
+        <line id="chV" x1="0" y1="0" x2="0" y2="0" stroke="rgba(255,255,255,0.25)" stroke-width="0.7"/>
+        <circle id="chDot" r="3" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+        <text id="chCoord" font-family="monospace" font-size="10" fill="rgba(255,255,255,0.5)"></text>
+      </g>
+    </svg>
+  </div>
+
+  <div id="sidebar">
+    <div class="panel">
+      <div class="panel-title">Zone da definire</div>
     </div>
-
-    <div class="section">
-      <div class="section-title">Profilo gradiente</div>
-      <div id="profWrap" style="padding:0">
-        <canvas id="profileCanvas" width="260" height="80"></canvas>
+    <div id="bList"></div>
+    <div id="outputWrap">
+      <div id="outputHeader">
+        <span>Output SVG</span>
+        <button onclick="copyOutput()" id="btnCopy2">📋 Copia</button>
       </div>
+      <div id="output">Completa le boundary per generare il codice.</div>
     </div>
-
-    <div class="section">
-      <div class="section-title">Linee (<span id="lineCount">0</span>) &nbsp;<span class="tip">Clic sul frame = aggiungi/rimuovi</span></div>
-      <div id="lineList"></div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Zona edificio X</div>
-      <div class="row">
-        <label>X sinistra</label>
-        <input type="range" id="bx1" min="300" max="700" value="480" oninput="updateVal(this,'bx1Val');redraw()"/>
-        <span class="val" id="bx1Val">480</span>
-      </div>
-      <div class="row">
-        <label>X destra</label>
-        <input type="range" id="bx2" min="800" max="1280" value="1070" oninput="updateVal(this,'bx2Val');redraw()"/>
-        <span class="val" id="bx2Val">1070</span>
-      </div>
-    </div>
-
-    <div class="section" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
-      <div class="section-title" style="margin-bottom:0.4rem">
-        Output SVG
-        <button onclick="copyOutput()" style="float:right;margin-top:-2px">📋 Copia</button>
-      </div>
-      <div id="output">Premi "Rileva"...</div>
-    </div>
-
   </div>
 </div>
 
 <script>
-const IC  = document.getElementById('imgCanvas');
-const ctx = IC.getContext('2d');
-const PC  = document.getElementById('profileCanvas');
-const pctx = PC.getContext('2d');
+/* ============================================================
+   DATA
+============================================================ */
+const BOUNDARY_NAMES = [
+  'Top edificio',
+  'Rooftop / Piano 8°',
+  'Piano 8° / Piano 7°',
+  'Piano 7° / Piano 6°',
+  'Piano 6° / Piano 5°',
+  'Piano 5° / Piano 4°',
+  'Piano 4° / Piano 3°',
+  'Piano 3° / Piano 2°',
+  'Piano 2° / Piano 1°',
+  'Bottom edificio',
+];
+const ZONE_NAMES = ['Rooftop','Piano 8°','Piano 7°','Piano 6°','Piano 5°','Piano 4°','Piano 3°','Piano 2°','Piano 1°'];
+const HAS_PLAN_IDX = 6; // Piano 3° = zone index 6 (between boundary 6 and 7)
 
-let imgLoaded = false;
-let imgData   = null;
-let lines     = [];   // [{y, type}]  type: 'sep'|'top'|'bottom'
-let smoothOn  = true;
-let theImg    = new Image();
+let boundaries   = []; // array of {name, pts:[{x,y},{x,y},{x,y}]}
+let currentPts   = []; // 0-2 points for boundary in progress
+let cursorPos    = {x: 640, y: 360};
+let done         = false;
 
-theImg.onload = () => {
-  imgLoaded = true;
-  ctx.drawImage(theImg, 0, 0, 1280, 720);
-  imgData = ctx.getImageData(0, 0, 1280, 720);
-  detect();
-};
-theImg.src = 'assets/frames/frame_0060.jpg';
+/* ============================================================
+   SVG UTILS
+============================================================ */
+const svg = document.getElementById('svg');
 
-function updateVal(el, id) { document.getElementById(id).textContent = el.value; }
-function toggleSmooth() {
-  smoothOn = !smoothOn;
-  document.getElementById('smoothLbl').textContent = smoothOn ? 'ON' : 'OFF';
+function toSVG(clientX, clientY) {
+  const pt = svg.createSVGPoint();
+  pt.x = clientX; pt.y = clientY;
+  const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return { x: Math.round(svgPt.x), y: Math.round(svgPt.y) };
 }
-function clearLines() { lines = []; redraw(); updateOutput(); updateLineList(); }
 
-/* ---- EDGE PROFILE ---- */
-function gradientProfile() {
-  const bx1 = +document.getElementById('bx1').value;
-  const bx2 = +document.getElementById('bx2').value;
-  const data = imgData.data;
-  const W = 1280;
-  const prof = new Float32Array(720);
+function ptsToStr(pts) {
+  return pts.map(p => `${p.x},${p.y}`).join(' ');
+}
 
-  for (let y = 2; y < 718; y++) {
-    let sum = 0;
-    for (let x = bx1; x < bx2; x++) {
-      const i0 = ((y-2)*W + x)*4;
-      const i1 = ((y+2)*W + x)*4;
-      const g0 = data[i0]*0.299 + data[i0+1]*0.587 + data[i0+2]*0.114;
-      const g1 = data[i1]*0.299 + data[i1+1]*0.587 + data[i1+2]*0.114;
-      sum += Math.abs(g1 - g0);
+/* ============================================================
+   RENDER
+============================================================ */
+function renderCompleted() {
+  const g = document.getElementById('gCompleted');
+  g.innerHTML = '';
+
+  // Draw filled zones between consecutive boundaries
+  for (let i = 0; i < boundaries.length - 1; i++) {
+    const top = boundaries[i].pts;
+    const bot = boundaries[i + 1].pts;
+    const isHasPlan = (i === HAS_PLAN_IDX);
+
+    // Zone fill (subtle)
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    const zonePts = [...top, ...[...bot].reverse()];
+    poly.setAttribute('points', ptsToStr(zonePts));
+    poly.setAttribute('fill', 'rgba(200,169,126,0.05)');
+    poly.setAttribute('stroke', 'none');
+    g.appendChild(poly);
+
+    // Separator line (the BOTTOM boundary of each zone, except last)
+    if (i < boundaries.length - 1) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      line.setAttribute('points', ptsToStr(bot));
+      line.setAttribute('fill', 'none');
+      line.setAttribute('stroke', isHasPlan ? 'rgba(200,169,126,0.8)' : 'rgba(255,255,255,0.45)');
+      line.setAttribute('stroke-width', isHasPlan ? '1.5' : '0.9');
+      if (isHasPlan) line.setAttribute('stroke-dasharray', '5,3');
+      g.appendChild(line);
     }
-    prof[y] = sum / (bx2 - bx1);
+
+    // Zone label (center of zone)
+    const cy = Math.round((top[1].y + bot[1].y) / 2);
+    const cx = top[1].x;
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl.setAttribute('x', cx - 10);
+    lbl.setAttribute('y', cy + 4);
+    lbl.setAttribute('text-anchor', 'end');
+    lbl.setAttribute('font-family', 'system-ui');
+    lbl.setAttribute('font-size', '11');
+    lbl.setAttribute('fill', 'rgba(255,255,255,0.5)');
+    lbl.textContent = ZONE_NAMES[i] || `Zone ${i}`;
+    g.appendChild(lbl);
   }
 
-  if (smoothOn) {
-    const s = new Float32Array(720);
-    const K = 3;
-    for (let y = K; y < 720-K; y++) {
-      let t = 0;
-      for (let k = -K; k <= K; k++) t += prof[y+k];
-      s[y] = t / (2*K+1);
+  // Draw TOP boundary line
+  if (boundaries.length > 0) {
+    const topLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    topLine.setAttribute('points', ptsToStr(boundaries[0].pts));
+    topLine.setAttribute('fill', 'none');
+    topLine.setAttribute('stroke', 'rgba(255,80,80,0.6)');
+    topLine.setAttribute('stroke-width', '1');
+    g.appendChild(topLine);
+  }
+
+  // Draw all boundary dots
+  boundaries.forEach(b => {
+    b.pts.forEach(p => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', '3');
+      c.setAttribute('fill', '#c8a97e'); c.setAttribute('stroke', 'none');
+      g.appendChild(c);
+    });
+  });
+}
+
+function renderCurrent() {
+  const cp = [document.getElementById('cp0'), document.getElementById('cp1'), document.getElementById('cp2')];
+  const curLine  = document.getElementById('curLine');
+  const curGuide = document.getElementById('curGuide');
+
+  // Placed dots
+  cp.forEach((c, i) => {
+    if (i < currentPts.length) {
+      c.setAttribute('cx', currentPts[i].x);
+      c.setAttribute('cy', currentPts[i].y);
+      c.setAttribute('visibility', 'visible');
+    } else {
+      c.setAttribute('visibility', 'hidden');
     }
-    return s;
-  }
-  return prof;
-}
-
-function findPeaks(prof) {
-  const threshold = +document.getElementById('threshold').value;
-  const minDist   = +document.getElementById('minDist').value;
-  const nLines    = +document.getElementById('nLines').value;
-
-  // Find local maxima above threshold
-  const cands = [];
-  for (let y = 3; y < 717; y++) {
-    if (prof[y] < threshold) continue;
-    let isMax = true;
-    for (let k = 1; k <= 5; k++) {
-      if (prof[y-k] > prof[y] || prof[y+k] > prof[y]) { isMax = false; break; }
-    }
-    if (isMax) cands.push({y, s: prof[y]});
-  }
-
-  // Sort by strength, apply minDist greedily
-  cands.sort((a,b) => b.s - a.s);
-  const kept = [];
-  for (const c of cands) {
-    if (kept.every(p => Math.abs(p.y - c.y) >= minDist)) kept.push(c);
-    if (kept.length >= nLines) break;
-  }
-
-  kept.sort((a,b) => a.y - b.y);
-  return kept;
-}
-
-/* ---- DETECT ---- */
-function detect() {
-  if (!imgLoaded) return;
-  const prof = gradientProfile();
-  const peaks = findPeaks(prof);
-
-  lines = peaks.map((p, i) => ({
-    y: p.y,
-    s: p.s,
-    type: i === 0 ? 'top' : i === peaks.length-1 ? 'bottom' : 'sep'
-  }));
-
-  drawProfile(prof, peaks);
-  redraw();
-  updateOutput();
-  updateLineList();
-}
-
-/* ---- DRAW ---- */
-function redraw() {
-  if (!imgLoaded) return;
-  ctx.drawImage(theImg, 0, 0, 1280, 720);
-
-  const bx1   = +document.getElementById('bx1').value;
-  const bx2   = +document.getElementById('bx2').value;
-  const slope = +document.getElementById('slope').value;
-
-  // Draw building x-bounds guide (faint)
-  ctx.strokeStyle = 'rgba(100,180,255,0.25)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([6,4]);
-  ctx.beginPath(); ctx.moveTo(bx1,0); ctx.lineTo(bx1,720); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(bx2,0); ctx.lineTo(bx2,720); ctx.stroke();
-  ctx.setLineDash([]);
-
-  lines.forEach((l, i) => {
-    const isTopBot = (i === 0 || i === lines.length-1);
-    ctx.beginPath();
-    ctx.moveTo(bx1, l.y);
-    ctx.lineTo(bx2, l.y + slope);
-    ctx.strokeStyle = isTopBot ? 'rgba(255,80,80,0.85)' : 'rgba(255,215,0,0.9)';
-    ctx.lineWidth = isTopBot ? 1.5 : 1.5;
-    ctx.stroke();
-
-    // y label on right
-    ctx.fillStyle = 'rgba(0,0,0,0.75)';
-    ctx.fillRect(bx2 + 4, l.y - 9, 64, 16);
-    ctx.fillStyle = isTopBot ? '#f88' : '#fd0';
-    ctx.font = '11px monospace';
-    ctx.fillText(`y=${l.y}`, bx2 + 7, l.y + 3);
   });
 
-  document.getElementById('lineCount').textContent = lines.length;
-}
-
-function drawProfile(prof, peaks) {
-  const W = PC.width, H = PC.height;
-  pctx.fillStyle = '#0d0d0d';
-  pctx.fillRect(0, 0, W, H);
-
-  const max = Math.max(...prof, 1);
-  pctx.beginPath();
-  for (let y = 0; y < 720; y++) {
-    const x = y * W / 720;
-    const h = (prof[y] / max) * (H - 10);
-    if (y === 0) pctx.moveTo(x, H - h); else pctx.lineTo(x, H - h);
-  }
-  pctx.strokeStyle = '#4af';
-  pctx.lineWidth = 1;
-  pctx.stroke();
-
-  peaks.forEach(p => {
-    const x = p.y * W / 720;
-    pctx.beginPath();
-    pctx.moveTo(x, 0); pctx.lineTo(x, H);
-    pctx.strokeStyle = 'rgba(255,215,0,0.55)';
-    pctx.lineWidth = 1;
-    pctx.stroke();
-  });
-
-  pctx.fillStyle = '#444';
-  pctx.font = '9px monospace';
-  pctx.fillText('▶ gradiente verticale (zona edificio)', 4, 10);
-}
-
-/* ---- CLICK TO ADD/REMOVE ---- */
-IC.addEventListener('click', e => {
-  const r = IC.getBoundingClientRect();
-  const scaleY = 720 / r.height;
-  const y = Math.round((e.clientY - r.top) * scaleY);
-
-  const nearIdx = lines.findIndex(l => Math.abs(l.y - y) < 10);
-  if (nearIdx >= 0) {
-    lines.splice(nearIdx, 1);
+  // Polyline through placed points
+  if (currentPts.length >= 2) {
+    curLine.setAttribute('points', ptsToStr(currentPts));
   } else {
-    lines.push({y, s: 0, type: 'sep'});
-    lines.sort((a,b) => a.y - b.y);
-    // Re-tag top/bottom
-    if (lines.length > 0) lines[0].type = 'top';
-    if (lines.length > 1) lines[lines.length-1].type = 'bottom';
-    for (let i = 1; i < lines.length-1; i++) lines[i].type = 'sep';
+    curLine.setAttribute('points', '');
   }
 
-  redraw();
-  updateOutput();
-  updateLineList();
-});
-
-/* ---- LINE LIST ---- */
-function updateLineList() {
-  const names = ['Top','Sep 1','Sep 2','Sep 3','Sep 4','Sep 5','Sep 6','Sep 7','Sep 8','Sep 9','Bot'];
-  const el = document.getElementById('lineList');
-  el.innerHTML = lines.map((l, i) => `
-    <div class="line-item">
-      <span class="li-role">${names[i] ?? 'L'+i}</span>
-      <span class="li-y">y=${l.y}</span>
-      <button class="li-del" onclick="removeLine(${i})">✕</button>
-    </div>`).join('');
-  document.getElementById('lineCount').textContent = lines.length;
+  // Guide line from last placed point to cursor
+  if (currentPts.length > 0) {
+    const last = currentPts[currentPts.length - 1];
+    curGuide.setAttribute('x1', last.x); curGuide.setAttribute('y1', last.y);
+    curGuide.setAttribute('x2', cursorPos.x); curGuide.setAttribute('y2', cursorPos.y);
+  } else {
+    curGuide.setAttribute('x1', 0); curGuide.setAttribute('y1', 0);
+    curGuide.setAttribute('x2', 0); curGuide.setAttribute('y2', 0);
+  }
 }
-function removeLine(i) { lines.splice(i,1); redraw(); updateOutput(); updateLineList(); }
 
-/* ---- OUTPUT ---- */
-function updateOutput() {
-  const slope = +document.getElementById('slope').value;
-  const BX1   = +document.getElementById('bx1').value;
-  const BX2   = +document.getElementById('bx2').value;
+function renderCursor(x, y) {
+  cursorPos = { x, y };
+  document.getElementById('chH').setAttribute('x1', 0);   document.getElementById('chH').setAttribute('y1', y);
+  document.getElementById('chH').setAttribute('x2', 1280);document.getElementById('chH').setAttribute('y2', y);
+  document.getElementById('chV').setAttribute('x1', x);   document.getElementById('chV').setAttribute('y1', 0);
+  document.getElementById('chV').setAttribute('x2', x);   document.getElementById('chV').setAttribute('y2', 720);
+  document.getElementById('chDot').setAttribute('cx', x); document.getElementById('chDot').setAttribute('cy', y);
+  const coord = document.getElementById('chCoord');
+  coord.setAttribute('x', x + 6); coord.setAttribute('y', y - 5);
+  coord.textContent = `${x},${y}`;
+  renderCurrent();
+}
 
-  if (lines.length < 3) {
-    document.getElementById('output').textContent = 'Servono almeno 3 linee (top + seps + bottom).';
+/* ============================================================
+   UI STATE
+============================================================ */
+function updateUI() {
+  const idx = boundaries.length;
+  const done_all = idx >= 10;
+
+  // Topbar
+  document.getElementById('stepLabel').textContent = done_all
+    ? '✓ Completato!'
+    : `Boundary ${idx + 1} di 10`;
+  document.getElementById('stepSub').textContent = done_all
+    ? 'Copia il codice SVG'
+    : BOUNDARY_NAMES[idx] + (currentPts.length > 0 ? ` (punto ${currentPts.length + 1}/3)` : ' (punto 1/3)');
+
+  // Dot row
+  for (let i = 0; i < 3; i++) {
+    const d = document.getElementById(`d${i}`);
+    d.className = 'dot' + (i < currentPts.length ? ' done' : i === currentPts.length && !done_all ? ' active' : '');
+  }
+
+  document.getElementById('btnUndo').disabled     = currentPts.length === 0;
+  document.getElementById('btnUndoBnd').disabled  = boundaries.length === 0;
+  document.getElementById('btnCopy').disabled     = boundaries.length < 10;
+  document.getElementById('btnCopy2').disabled    = boundaries.length < 10;
+
+  // Sidebar list
+  renderList();
+
+  if (boundaries.length >= 10) generateOutput();
+}
+
+function renderList() {
+  const el = document.getElementById('bList');
+  el.innerHTML = '';
+  BOUNDARY_NAMES.forEach((name, i) => {
+    const div = document.createElement('div');
+    let cls = 'b-item ';
+    if (i < boundaries.length) cls += 'done';
+    else if (i === boundaries.length) cls += 'active';
+    else cls += 'pending';
+    div.className = cls;
+
+    const pts = i < boundaries.length ? boundaries[i].pts : null;
+    div.innerHTML = `
+      <span class="b-num">${i}</span>
+      <span class="b-name">${name}</span>
+      <span class="b-pts">${pts ? pts.map(p=>`${p.x},${p.y}`).join(' ') : '—'}</span>
+      ${pts ? `<button class="b-del" onclick="deleteBoundary(${i})">✕</button>` : ''}
+    `;
+    el.appendChild(div);
+  });
+}
+
+/* ============================================================
+   INTERACTION
+============================================================ */
+function registerPoint(x, y) {
+  if (boundaries.length >= 10) return;
+  currentPts.push({ x, y });
+
+  if (currentPts.length === 3) {
+    // Boundary complete
+    boundaries.push({ name: BOUNDARY_NAMES[boundaries.length], pts: [...currentPts] });
+    currentPts = [];
+    renderCompleted();
+  }
+
+  renderCurrent();
+  updateUI();
+}
+
+function undoPoint() {
+  if (currentPts.length > 0) {
+    currentPts.pop();
+    renderCurrent();
+    updateUI();
+  }
+}
+
+function undoBoundary() {
+  if (currentPts.length > 0) {
+    currentPts = [];
+    renderCurrent();
+    updateUI();
     return;
   }
+  if (boundaries.length > 0) {
+    boundaries.pop();
+    renderCompleted();
+    updateUI();
+  }
+}
 
-  const seps   = lines.slice(1, -1);
-  const top    = lines[0];
-  const bottom = lines[lines.length-1];
+function deleteBoundary(i) {
+  boundaries.splice(i);  // remove from i onward
+  currentPts = [];
+  renderCompleted();
+  renderCurrent();
+  updateUI();
+}
 
-  const zoneNames = ['Rooftop','Piano 8°','Piano 7°','Piano 6°','Piano 5°','Piano 4°','Piano 3°','Piano 2°','Piano 1°','Piano 0°'];
-  const bounds = [top, ...seps, bottom];
+/* ============================================================
+   MOUSE / TOUCH
+============================================================ */
+const wrap = document.getElementById('canvasWrap');
 
-  let out = `<!-- === FLOOR SEPARATORS (calibrated) ===\n`;
-  out += `     Building x=${BX1}..${BX2}, slope=+${slope}px\n`;
-  out += `     Sep y (left): ${seps.map(s=>s.y).join('/')} -->\n\n`;
+wrap.addEventListener('mousemove', e => {
+  const p = toSVG(e.clientX, e.clientY);
+  renderCursor(p.x, p.y);
+});
 
-  out += `<!-- f-sep lines -->\n`;
-  seps.forEach(s => {
-    out += `<line class="f-sep" x1="${BX1}" y1="${s.y}" x2="${BX2}" y2="${s.y+slope}"/>\n`;
-  });
+wrap.addEventListener('click', e => {
+  e.preventDefault();
+  const p = toSVG(e.clientX, e.clientY);
+  registerPoint(p.x, p.y);
+});
 
-  out += `\n<!-- floor zone polygons -->\n`;
-  for (let i = 0; i < bounds.length-1; i++) {
-    const yTL = bounds[i].y, yBL = bounds[i+1].y;
-    const yTR = yTL+slope,  yBR = yBL+slope;
-    const mid = Math.round((yTL+yBL)/2);
-    const name = zoneNames[i] || `Zone ${i}`;
-    out += `\n<!-- ${name}: y ${yTL}→${yBL}, mid=${mid} -->\n`;
-    out += `<polygon class="floor-hit" points="${BX1},${yTL} ${BX2},${yTR} ${BX2},${yBR} ${BX1},${yBL}"/>\n`;
-    out += `<line class="f-tick" x1="232" y1="${mid}" x2="${BX1}" y2="${mid}"/>\n`;
-    out += `<rect class="f-label-bg" x="48" y="${mid-12}" width="178" height="30" rx="4"/>\n`;
-    out += `<text class="f-label" x="216" y="${mid+1}" text-anchor="end">${name}</text>\n`;
+wrap.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const p = toSVG(t.clientX, t.clientY);
+  renderCursor(p.x, p.y);
+}, { passive: false });
+
+wrap.addEventListener('touchend', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const p = toSVG(t.clientX, t.clientY);
+  registerPoint(p.x, p.y);
+}, { passive: false });
+
+/* ============================================================
+   OUTPUT
+============================================================ */
+function generateOutput() {
+  if (boundaries.length < 10) return;
+
+  let out = '<!-- === FLOOR OVERLAY — 3-point perspective ===\n';
+  out += '     Generato con floor-detect.html -->\n\n';
+
+  // f-sep lines (boundaries 1-8, skip top and bottom)
+  out += '<!-- Separator lines -->\n';
+  for (let i = 1; i <= 8; i++) {
+    const pts = boundaries[i].pts;
+    out += `<polyline class="f-sep" points="${ptsToStr(pts)}"/>\n`;
+  }
+
+  // Floor zones
+  out += '\n<!-- Floor zones -->\n';
+  for (let i = 0; i < 9; i++) {
+    const top   = boundaries[i].pts;
+    const bot   = boundaries[i + 1].pts;
+    const name  = ZONE_NAMES[i];
+    const isPlan= (i === HAS_PLAN_IDX);
+    const mid_y = Math.round((top[1].y + bot[1].y) / 2);
+
+    // 6-point polygon: top-left, top-mid, top-right, bot-right, bot-mid, bot-left
+    const zonePts = [top[0], top[1], top[2], bot[2], bot[1], bot[0]];
+    const polyStr = ptsToStr(zonePts);
+
+    out += `\n<!-- ${name} -->\n`;
+    if (isPlan) {
+      out += `<g class="floor-zone has-plan" id="fz-3" onclick="location.href='piantina.html'">\n`;
+      out += `  <polygon class="floor-hit" points="${polyStr}"/>\n`;
+      out += `  <polygon class="f-dash" points="${polyStr}"/>\n`;
+    } else {
+      const fid = name === 'Rooftop' ? 'fz-roof' : `fz-${name.split(' ')[1].replace('°','')}`;
+      const floorNum = name === 'Rooftop' ? "'Rooftop'" : name.split(' ')[1].replace('°','');
+      out += `<g class="floor-zone" id="${fid}" onclick="floorClick(${floorNum})">\n`;
+      out += `  <polygon class="floor-hit" points="${polyStr}"/>\n`;
+    }
+
+    const mid_x_left = top[0].x;
+    const badge = name === 'Rooftop' ? 'Giardino Pensile' : isPlan ? 'Piantina disponibile →' : '— unità disponibili';
+    out += `  <line class="f-tick" x1="232" y1="${mid_y}" x2="${mid_x_left}" y2="${mid_y}"/>\n`;
+    out += `  <rect class="f-label-bg" x="48" y="${mid_y - 12}" width="${isPlan ? 214 : 178}" height="30" rx="4"/>\n`;
+    out += `  <text class="f-label" x="${isPlan ? 222 : 216}" y="${mid_y + 1}" text-anchor="end">${name}</text>\n`;
+    out += `  <text class="f-badge" x="${isPlan ? 222 : 216}" y="${mid_y + 13}" text-anchor="end">${badge}</text>\n`;
+    out += `</g>\n`;
   }
 
   document.getElementById('output').textContent = out;
 }
 
 function copyOutput() {
-  navigator.clipboard.writeText(document.getElementById('output').textContent)
-    .then(() => { const b = event.target; b.textContent='✓ Copiato!'; setTimeout(()=>b.textContent='📋 Copia',1500); });
+  const text = document.getElementById('output').textContent;
+  if (!text || text.startsWith('Completa')) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const b = document.getElementById('btnCopy');
+    const b2 = document.getElementById('btnCopy2');
+    b.textContent = '✓ Copiato!';
+    b2.textContent = '✓';
+    setTimeout(() => { b.textContent = '📋 Copia SVG'; b2.textContent = '📋 Copia'; }, 2000);
+  });
 }
+
+/* ============================================================
+   INIT
+============================================================ */
+updateUI();
 </script>
 </body>
 </html>
